@@ -22,6 +22,15 @@ st.markdown("""
 <style>
     #MainMenu, footer, header {visibility: hidden;}
 
+    /* Forzar tema claro */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background-color: #ffffff !important;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #f8f9fa !important;
+    }
+
     /* Opción 1: Borde superior degradado rasta */
     .stApp::before {
         content: '';
@@ -39,7 +48,7 @@ st.markdown("""
         outline-offset: 3px !important;
     }
 
-    body, .stMarkdown, p, span, label {
+    body, .stMarkdown, p, span, label, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
         color: #1a1a1a !important;
     }
 
