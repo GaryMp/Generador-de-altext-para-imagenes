@@ -4,3 +4,4 @@ transformers
 pillow
 piexif
 deep-translator
+requests

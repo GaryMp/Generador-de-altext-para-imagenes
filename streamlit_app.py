@@ -9,6 +9,40 @@ import io
 import re
 import piexif
 import zipfile
+import requests
+
+# Configuración JSONbin.io para contadores
+JSONBIN_BIN_ID = "6983d11b43b1c97be965ec3c"
+JSONBIN_API_KEY = "$2a$10$6j4MIEVKRPTDxuwR3GRw2unUp8KZ3TbTvl/3psM5RA7nEpMZ8ALxO"
+
+def obtener_contadores():
+    """Obtiene los contadores actuales desde JSONbin"""
+    try:
+        url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}/latest"
+        headers = {"X-Master-Key": JSONBIN_API_KEY}
+        response = requests.get(url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            return response.json()["record"]
+        return {"imagenes": 0, "visitas": 0}
+    except:
+        return {"imagenes": 0, "visitas": 0}
+
+def actualizar_contadores(imagenes=0, visitas=0):
+    """Incrementa los contadores en JSONbin"""
+    try:
+        datos = obtener_contadores()
+        datos["imagenes"] = datos.get("imagenes", 0) + imagenes
+        datos["visitas"] = datos.get("visitas", 0) + visitas
+
+        url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
+        headers = {
+            "Content-Type": "application/json",
+            "X-Master-Key": JSONBIN_API_KEY
+        }
+        requests.put(url, json=datos, headers=headers, timeout=5)
+        return datos
+    except:
+        return {"imagenes": 0, "visitas": 0}
 
 st.set_page_config(
     page_title="GaryText Pro",
@@ -219,6 +253,9 @@ if 'mensaje_alerta' not in st.session_state:
     st.session_state.mensaje_alerta = ""
 if 'mostrar_visual' not in st.session_state:
     st.session_state.mostrar_visual = False
+if 'visita_contada' not in st.session_state:
+    st.session_state.visita_contada = False
+    actualizar_contadores(visitas=1)
 
 # Funciones de callback
 def marcar_descarga(nombre_archivo):
@@ -249,6 +286,15 @@ def quitar_resultado(indice):
 st.markdown("""
 <h1 tabindex="-1" class="rasta-title"><span class="gary-g">G</span><span class="gary-a">a</span><span class="gary-r">r</span><span class="gary-y">y</span>Text Pro</h1>
 <p>Genera texto alternativo para tus imágenes con inteligencia artificial.</p>
+""", unsafe_allow_html=True)
+
+# Mostrar contadores
+contadores = obtener_contadores()
+st.markdown(f"""
+<div style="text-align: center; padding: 0.5rem; background: linear-gradient(90deg, rgba(34,139,34,0.1), rgba(255,215,0,0.1), rgba(220,20,60,0.1)); border-radius: 8px; margin-bottom: 1rem;">
+    <span style="margin-right: 1.5rem;">👁️ <strong>{contadores.get('visitas', 0):,}</strong> visitas</span>
+    <span>📊 <strong>{contadores.get('imagenes', 0):,}</strong> imágenes analizadas</span>
+</div>
 """, unsafe_allow_html=True)
 
 with st.expander("Instrucciones de uso"):
@@ -376,6 +422,7 @@ if archivos and not st.session_state.resultados:
             alerta_container.empty()
 
             cantidad = len(st.session_state.resultados)
+            actualizar_contadores(imagenes=cantidad)
             st.session_state.mensaje_alerta = f"Listo. {cantidad} {'imagen procesada' if cantidad == 1 else 'imágenes procesadas'}. Ya puedes descargar los resultados."
             st.session_state.mostrar_visual = True
 
