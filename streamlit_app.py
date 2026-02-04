@@ -444,6 +444,12 @@ if st.session_state.resultados:
 # Footer
 st.markdown("""
 <div class="rasta-footer">
-    GaryText Pro v0.1 - Por Gary Dev
+    <p style="margin-bottom: 0.5rem;">GaryText Pro v0.1 - Por Gary Dev</p>
+    <p style="font-size: 0.9rem; color: #555; margin-bottom: 0.5rem;">
+        Si te ha parecido útil esta aplicación, no dudes en donarme un café
+    </p>
+    <a href="https://ko-fi.com/garydev" target="_blank" rel="noopener noreferrer">
+        <img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Donar un café en Ko-fi" style="height: 36px; border: 0;">
+    </a>
 </div>
 """, unsafe_allow_html=True)
