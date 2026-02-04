@@ -253,9 +253,6 @@ if 'mensaje_alerta' not in st.session_state:
     st.session_state.mensaje_alerta = ""
 if 'mostrar_visual' not in st.session_state:
     st.session_state.mostrar_visual = False
-if 'visita_contada' not in st.session_state:
-    st.session_state.visita_contada = False
-    actualizar_contadores(visitas=1)
 
 # Funciones de callback
 def marcar_descarga(nombre_archivo):
@@ -292,9 +289,49 @@ st.markdown("""
 contadores = obtener_contadores()
 st.markdown(f"""
 <div style="text-align: center; padding: 0.5rem; background: linear-gradient(90deg, rgba(34,139,34,0.1), rgba(255,215,0,0.1), rgba(220,20,60,0.1)); border-radius: 8px; margin-bottom: 1rem;">
-    <span style="margin-right: 1.5rem;">👁️ <strong>{contadores.get('visitas', 0):,}</strong> visitas</span>
-    <span>📊 <strong>{contadores.get('imagenes', 0):,}</strong> imágenes analizadas</span>
+    <span style="margin-right: 1.5rem;">👁️ <strong id="contador-visitas">{contadores.get('visitas', 0):,}</strong> visitas</span>
+    <span>📊 <strong id="contador-imagenes">{contadores.get('imagenes', 0):,}</strong> imágenes analizadas</span>
 </div>
+
+<script>
+(function() {{
+    const BIN_ID = "{JSONBIN_BIN_ID}";
+    const API_KEY = "{JSONBIN_API_KEY}";
+    const STORAGE_KEY = "garytext_visitado";
+
+    // Verificar si ya visitó antes
+    if (!localStorage.getItem(STORAGE_KEY)) {{
+        // Marcar como visitado
+        localStorage.setItem(STORAGE_KEY, Date.now().toString());
+
+        // Incrementar contador en JSONbin
+        fetch(`https://api.jsonbin.io/v3/b/${{BIN_ID}}/latest`, {{
+            headers: {{ "X-Master-Key": API_KEY }}
+        }})
+        .then(res => res.json())
+        .then(data => {{
+            const datos = data.record;
+            datos.visitas = (datos.visitas || 0) + 1;
+
+            return fetch(`https://api.jsonbin.io/v3/b/${{BIN_ID}}`, {{
+                method: "PUT",
+                headers: {{
+                    "Content-Type": "application/json",
+                    "X-Master-Key": API_KEY
+                }},
+                body: JSON.stringify(datos)
+            }});
+        }})
+        .then(res => res.json())
+        .then(data => {{
+            // Actualizar el contador en pantalla
+            const el = document.getElementById("contador-visitas");
+            if (el) el.textContent = data.record.visitas.toLocaleString();
+        }})
+        .catch(err => console.log("Error contador:", err));
+    }}
+}})();
+</script>
 """, unsafe_allow_html=True)
 
 with st.expander("Instrucciones de uso"):
