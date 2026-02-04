@@ -1,0 +1,33 @@
+# Compilación PyInstaller
+build/
+dist/
+*.spec
+hook-*.py
+
+# Scripts locales
+*.bat
+
+# Versiones anteriores/alternativas
+textoalternativo.py
+textoalternativo_simple.py
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Sistema
+.DS_Store
+Thumbs.db
