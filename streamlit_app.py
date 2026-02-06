@@ -433,11 +433,16 @@ if archivos and not st.session_state.resultados:
         """, unsafe_allow_html=True)
 
         try:
+            import time
             barra = st.progress(0)
             idioma_codigo = "es" if traducir else "en"
 
             for i, archivo in enumerate(archivos):
                 barra.progress((i) / len(archivos))
+
+                # Delay entre imágenes para evitar rate limit
+                if i > 0:
+                    time.sleep(1)
 
                 imagen = Image.open(archivo)
                 if imagen.mode != 'RGB':
