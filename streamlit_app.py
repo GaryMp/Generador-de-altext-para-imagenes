@@ -173,7 +173,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def describir_imagen(imagen, idioma="es", reintentos=3):
+def describir_imagen(imagen, idioma="es", reintentos=2):
     """Genera descripción de imagen usando Gemini con reintentos automáticos"""
     import time
 
@@ -196,7 +196,7 @@ def describir_imagen(imagen, idioma="es", reintentos=3):
             return response.text.strip()
         except Exception as e:
             if "429" in str(e) and intento < reintentos - 1:
-                time.sleep(5)  # Esperar 5 segundos antes de reintentar
+                time.sleep(4)  # Esperar 4 segundos antes de reintentar
                 continue
             return f"Error al procesar: {str(e)}"
 
@@ -452,9 +452,11 @@ if archivos and not st.session_state.resultados:
             for i, archivo in enumerate(archivos):
                 barra.progress((i) / len(archivos))
 
-                # Delay entre imágenes para evitar rate limit
+                # Delay para evitar rate limit (4s entre cada imagen)
                 if i > 0:
                     time.sleep(4)
+                else:
+                    time.sleep(1)  # Pequeño delay inicial
 
                 imagen = Image.open(archivo)
                 if imagen.mode != 'RGB':
