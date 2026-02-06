@@ -187,27 +187,54 @@ def describir_imagen(imagen, idioma="es", reintentos=2):
     model = obtener_modelo_gemini()
 
     if idioma == "es":
-        prompt = """Describe esta imagen en una frase corta en español para texto alternativo.
-Empieza directamente con el sujeto principal.
-NO uses estas frases: "Es una", "En esta imagen", "Se muestra", "Se ve", "Hay un", "Hay una", "Esta es".
-Solo la descripción, sin explicaciones adicionales."""
+        prompt = """Analiza esta imagen y responde en este formato exacto:
+
+NOMBRE: [3-5 palabras descriptivas que identifiquen claramente el contenido, ejemplo: "chef preparando sushi japonés" o "niños jugando en parque"]
+DESCRIPCION: [Frase descriptiva detallada de 15-25 palabras]
+
+Reglas:
+- El NOMBRE debe ser claro y entendible por sí solo
+- La DESCRIPCION empieza directamente con el sujeto, sin usar "Es una", "En esta imagen", "Se muestra"
+- Responde solo en español"""
     else:
-        prompt = """Describe this image in one short sentence for alt text.
-Start directly with the main subject.
-DO NOT use these phrases: "This is", "In this image", "There is", "We can see", "The image shows".
-Only the description, no additional explanations."""
+        prompt = """Analyze this image and respond in this exact format:
+
+NAME: [3-5 descriptive words that clearly identify the content, example: "chef preparing japanese sushi" or "children playing in park"]
+DESCRIPTION: [Detailed descriptive sentence of 15-25 words]
+
+Rules:
+- The NAME must be clear and understandable on its own
+- The DESCRIPTION starts directly with the subject, without using "This is", "In this image", "It shows"
+- Respond only in English"""
 
     for intento in range(reintentos):
         try:
             response = model.generate_content([prompt, imagen])
-            return response.text.strip()
+            texto = response.text.strip()
+
+            # Parsear respuesta para extraer nombre y descripción
+            nombre = ""
+            descripcion = texto
+
+            for linea in texto.split('\n'):
+                linea = linea.strip()
+                if linea.upper().startswith('NOMBRE:') or linea.upper().startswith('NAME:'):
+                    nombre = linea.split(':', 1)[1].strip()
+                elif linea.upper().startswith('DESCRIPCION:') or linea.upper().startswith('DESCRIPTION:'):
+                    descripcion = linea.split(':', 1)[1].strip()
+
+            # Si no se pudo parsear, usar el texto completo
+            if not nombre:
+                nombre = descripcion[:50] if descripcion else texto[:50]
+
+            return {"nombre": nombre, "descripcion": descripcion}
         except Exception as e:
             if "429" in str(e) and intento < reintentos - 1:
-                time.sleep(4)  # Esperar 4 segundos antes de reintentar
+                time.sleep(4)
                 continue
-            return f"Error al procesar: {str(e)}"
+            return {"nombre": "error", "descripcion": f"Error al procesar: {str(e)}"}
 
-    return "Error: No se pudo procesar después de varios intentos"
+    return {"nombre": "error", "descripcion": "Error: No se pudo procesar después de varios intentos"}
 
 def limpiar_nombre(texto):
     texto = texto.lower().replace(" ", "_")
@@ -463,9 +490,10 @@ if archivos and not st.session_state.resultados:
                 if imagen.mode != 'RGB':
                     imagen = imagen.convert('RGB')
 
-                descripcion = describir_imagen(imagen, idioma_codigo)
+                resultado = describir_imagen(imagen, idioma_codigo)
 
-                nombre_nuevo = f"{limpiar_nombre(descripcion)}.jpg"
+                nombre_nuevo = f"{limpiar_nombre(resultado['nombre'])}.jpg"
+                descripcion = resultado['descripcion']
                 exif = agregar_exif(imagen, descripcion) if guardar_exif else None
 
                 st.session_state.resultados.append({
