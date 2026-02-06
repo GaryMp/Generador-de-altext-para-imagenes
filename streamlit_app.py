@@ -173,27 +173,34 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def describir_imagen(imagen, idioma="es"):
-    """Genera descripción de imagen usando Gemini"""
-    try:
-        if not GEMINI_API_KEY:
-            return "Error: API key de Gemini no configurada"
+def describir_imagen(imagen, idioma="es", reintentos=3):
+    """Genera descripción de imagen usando Gemini con reintentos automáticos"""
+    import time
 
-        if imagen.mode != 'RGB':
-            imagen = imagen.convert('RGB')
+    if not GEMINI_API_KEY:
+        return "Error: API key de Gemini no configurada"
 
-        model = obtener_modelo_gemini()
+    if imagen.mode != 'RGB':
+        imagen = imagen.convert('RGB')
 
-        if idioma == "es":
-            prompt = "Describe esta imagen en una sola frase corta en español. Solo la descripción, sin explicaciones adicionales."
-        else:
-            prompt = "Describe this image in one short sentence. Only the description, no additional explanations."
+    model = obtener_modelo_gemini()
 
-        response = model.generate_content([prompt, imagen])
+    if idioma == "es":
+        prompt = "Describe esta imagen en una sola frase corta en español. Solo la descripción, sin explicaciones adicionales."
+    else:
+        prompt = "Describe this image in one short sentence. Only the description, no additional explanations."
 
-        return response.text.strip()
-    except Exception as e:
-        return f"Error al procesar: {str(e)}"
+    for intento in range(reintentos):
+        try:
+            response = model.generate_content([prompt, imagen])
+            return response.text.strip()
+        except Exception as e:
+            if "429" in str(e) and intento < reintentos - 1:
+                time.sleep(5)  # Esperar 5 segundos antes de reintentar
+                continue
+            return f"Error al procesar: {str(e)}"
+
+    return "Error: No se pudo procesar después de varios intentos"
 
 def limpiar_nombre(texto):
     texto = texto.lower().replace(" ", "_")
