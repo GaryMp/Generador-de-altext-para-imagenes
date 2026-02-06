@@ -442,7 +442,7 @@ if archivos and not st.session_state.resultados:
 
                 # Delay entre imágenes para evitar rate limit
                 if i > 0:
-                    time.sleep(1)
+                    time.sleep(5)
 
                 imagen = Image.open(archivo)
                 if imagen.mode != 'RGB':
