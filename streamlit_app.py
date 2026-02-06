@@ -187,9 +187,15 @@ def describir_imagen(imagen, idioma="es", reintentos=2):
     model = obtener_modelo_gemini()
 
     if idioma == "es":
-        prompt = "Describe esta imagen en una sola frase corta en español. Solo la descripción, sin explicaciones adicionales."
+        prompt = """Describe esta imagen en una frase corta en español para texto alternativo.
+Empieza directamente con el sujeto principal.
+NO uses estas frases: "Es una", "En esta imagen", "Se muestra", "Se ve", "Hay un", "Hay una", "Esta es".
+Solo la descripción, sin explicaciones adicionales."""
     else:
-        prompt = "Describe this image in one short sentence. Only the description, no additional explanations."
+        prompt = """Describe this image in one short sentence for alt text.
+Start directly with the main subject.
+DO NOT use these phrases: "This is", "In this image", "There is", "We can see", "The image shows".
+Only the description, no additional explanations."""
 
     for intento in range(reintentos):
         try:
