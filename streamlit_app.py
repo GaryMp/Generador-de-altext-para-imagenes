@@ -10,6 +10,12 @@ import re
 import piexif
 import zipfile
 import requests
+import google.generativeai as genai
+
+# Configuración Gemini
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 # Configuración JSONbin.io para contadores
 JSONBIN_BIN_ID = "6983d11b43b1c97be965ec3c"
@@ -162,31 +168,27 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Cache del modelo
-@st.cache_resource
-def cargar_modelo():
-    import torch
-    from transformers import BlipProcessor, BlipForConditionalGeneration
-    processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
-    model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
-    return processor, model
-
-def describir_imagen(imagen, processor, model):
+def describir_imagen(imagen, idioma="es"):
+    """Genera descripción de imagen usando Gemini"""
     try:
+        if not GEMINI_API_KEY:
+            return "Error: API key de Gemini no configurada"
+
         if imagen.mode != 'RGB':
             imagen = imagen.convert('RGB')
-        inputs = processor(imagen, return_tensors="pt")
-        out = model.generate(**inputs, max_length=80, num_beams=5, repetition_penalty=1.2)
-        return processor.decode(out[0], skip_special_tokens=True)
-    except:
-        return "Error al procesar"
 
-def traducir_al_espanol(texto):
-    try:
-        from deep_translator import GoogleTranslator
-        return GoogleTranslator(source='en', target='es').translate(texto)
-    except:
-        return texto
+        model = genai.GenerativeModel('gemini-2.0-flash')
+
+        if idioma == "es":
+            prompt = "Describe esta imagen en una sola frase corta en español. Solo la descripción, sin explicaciones adicionales."
+        else:
+            prompt = "Describe this image in one short sentence. Only the description, no additional explanations."
+
+        response = model.generate_content([prompt, imagen])
+
+        return response.text.strip()
+    except Exception as e:
+        return f"Error al procesar: {str(e)}"
 
 def limpiar_nombre(texto):
     texto = texto.lower().replace(" ", "_")
@@ -284,6 +286,10 @@ st.markdown("""
 <h1 tabindex="-1" class="rasta-title"><span class="gary-g">G</span><span class="gary-a">a</span><span class="gary-r">r</span><span class="gary-y">y</span>Text Pro</h1>
 <p>Genera texto alternativo para tus imágenes con inteligencia artificial.</p>
 """, unsafe_allow_html=True)
+
+# Verificar API key
+if not GEMINI_API_KEY:
+    st.error("API key de Gemini no configurada. Configura GEMINI_API_KEY en los secrets de Streamlit.")
 
 # Mostrar contadores
 contadores = obtener_contadores()
@@ -427,10 +433,8 @@ if archivos and not st.session_state.resultados:
         """, unsafe_allow_html=True)
 
         try:
-            with st.spinner("Cargando modelo..."):
-                processor, model = cargar_modelo()
-
             barra = st.progress(0)
+            idioma_codigo = "es" if traducir else "en"
 
             for i, archivo in enumerate(archivos):
                 barra.progress((i) / len(archivos))
@@ -439,10 +443,7 @@ if archivos and not st.session_state.resultados:
                 if imagen.mode != 'RGB':
                     imagen = imagen.convert('RGB')
 
-                descripcion = describir_imagen(imagen, processor, model)
-
-                if traducir:
-                    descripcion = traducir_al_espanol(descripcion)
+                descripcion = describir_imagen(imagen, idioma_codigo)
 
                 nombre_nuevo = f"{limpiar_nombre(descripcion)}.jpg"
                 exif = agregar_exif(imagen, descripcion) if guardar_exif else None

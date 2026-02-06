@@ -1,7 +1,5 @@
 streamlit>=1.28.0
-torch
-transformers
 pillow
 piexif
-deep-translator
 requests
+google-generativeai
