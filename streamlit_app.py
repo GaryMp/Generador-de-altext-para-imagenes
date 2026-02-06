@@ -17,6 +17,11 @@ GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
+@st.cache_resource
+def obtener_modelo_gemini():
+    """Cachea el modelo Gemini para reutilizarlo"""
+    return genai.GenerativeModel('gemini-2.0-flash')
+
 # Configuración JSONbin.io para contadores
 JSONBIN_BIN_ID = "6983d11b43b1c97be965ec3c"
 JSONBIN_API_KEY = "$2a$10$6j4MIEVKRPTDxuwR3GRw2unUp8KZ3TbTvl/3psM5RA7nEpMZ8ALxO"
@@ -177,7 +182,7 @@ def describir_imagen(imagen, idioma="es"):
         if imagen.mode != 'RGB':
             imagen = imagen.convert('RGB')
 
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = obtener_modelo_gemini()
 
         if idioma == "es":
             prompt = "Describe esta imagen en una sola frase corta en español. Solo la descripción, sin explicaciones adicionales."
