@@ -526,37 +526,21 @@ if st.session_state.resultados:
     st.markdown("---")
     st.markdown("### Resultados")
 
-    # Descarga ZIP si hay varias
-    if len(st.session_state.resultados) > 1:
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
-            for r in st.session_state.resultados:
-                img_bytes = imagen_a_bytes(r['imagen'], r['exif'])
-                zf.writestr(r['nombre'], img_bytes.getvalue())
-        zip_buffer.seek(0)
-
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            st.download_button(
-                "Descargar todo en ZIP",
-                data=zip_buffer,
-                file_name="garytext_imagenes.zip",
-                mime="application/zip",
-                use_container_width=True,
-                on_click=marcar_descarga_zip
-            )
-        with col2:
-            if st.button("Limpiar todo", use_container_width=True, on_click=limpiar_todo):
-                st.rerun()
-
-        st.markdown("---")
-
     # Resultados individuales
     for i, r in enumerate(st.session_state.resultados):
         st.markdown(f"**Imagen {i+1}:** {r['nombre']}")
-        st.markdown(f"Texto: {r['descripcion']}")
 
-        buffer = imagen_a_bytes(r['imagen'], r['exif'])
+        texto_editado = st.text_area(
+            f"Texto alternativo imagen {i+1}",
+            value=r['descripcion'],
+            key=f"txt_{i}",
+            height=100,
+            label_visibility="collapsed"
+        )
+
+        # Regenerar EXIF con el texto editado
+        exif_actual = agregar_exif(r['imagen'], texto_editado) if guardar_exif else None
+        buffer = imagen_a_bytes(r['imagen'], exif_actual)
 
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -577,9 +561,32 @@ if st.session_state.resultados:
         if i < len(st.session_state.resultados) - 1:
             st.markdown("---")
 
-    # Botón limpiar si hay un solo resultado
-    if len(st.session_state.resultados) == 1:
-        st.markdown("---")
+    # Descarga ZIP y limpiar
+    st.markdown("---")
+    if len(st.session_state.resultados) > 1:
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for i, r in enumerate(st.session_state.resultados):
+                texto_actual = st.session_state.get(f"txt_{i}", r['descripcion'])
+                exif_zip = agregar_exif(r['imagen'], texto_actual) if guardar_exif else None
+                img_bytes = imagen_a_bytes(r['imagen'], exif_zip)
+                zf.writestr(r['nombre'], img_bytes.getvalue())
+        zip_buffer.seek(0)
+
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.download_button(
+                "Descargar todo en ZIP",
+                data=zip_buffer,
+                file_name="garytext_imagenes.zip",
+                mime="application/zip",
+                use_container_width=True,
+                on_click=marcar_descarga_zip
+            )
+        with col2:
+            if st.button("Limpiar todo", use_container_width=True, on_click=limpiar_todo):
+                st.rerun()
+    else:
         if st.button("Limpiar y procesar nuevas imágenes", use_container_width=True, on_click=limpiar_todo):
             st.rerun()
 

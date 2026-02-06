@@ -28,6 +28,9 @@ env/
 .idea/
 *.swp
 
+# Secrets (API keys)
+.streamlit/secrets.toml
+
 # Sistema
 .DS_Store
 Thumbs.db
