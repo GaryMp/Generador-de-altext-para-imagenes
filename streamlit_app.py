@@ -177,7 +177,7 @@ def describir_imagen(imagen, idioma="es"):
         if imagen.mode != 'RGB':
             imagen = imagen.convert('RGB')
 
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
         if idioma == "es":
             prompt = "Describe esta imagen en una sola frase corta en español. Solo la descripción, sin explicaciones adicionales."
