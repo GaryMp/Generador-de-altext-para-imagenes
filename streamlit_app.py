@@ -4,6 +4,7 @@ Optimizado para NVDA y JAWS
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 from PIL import Image
 import io
 import re
@@ -307,23 +308,23 @@ if not GEMINI_API_KEY:
 contadores = obtener_contadores()
 st.markdown(f"""
 <div style="text-align: center; padding: 0.5rem; background: linear-gradient(90deg, rgba(34,139,34,0.1), rgba(255,215,0,0.1), rgba(220,20,60,0.1)); border-radius: 8px; margin-bottom: 1rem;">
-    <span style="margin-right: 1.5rem;">👁️ <strong id="contador-visitas">{contadores.get('visitas', 0):,}</strong> visitas</span>
-    <span>📊 <strong id="contador-imagenes">{contadores.get('imagenes', 0):,}</strong> imágenes analizadas</span>
+    <span style="margin-right: 1.5rem;">👁️ <strong>{contadores.get('visitas', 0):,}</strong> visitas</span>
+    <span>📊 <strong>{contadores.get('imagenes', 0):,}</strong> imágenes analizadas</span>
 </div>
+""", unsafe_allow_html=True)
 
+# Contador de visitas con JavaScript (se ejecuta en iframe)
+components.html(f"""
 <script>
 (function() {{
     const BIN_ID = "{JSONBIN_BIN_ID}";
     const API_KEY = "{JSONBIN_API_KEY}";
     const STORAGE_KEY = "garytext_visitado";
 
-    // Verificar si ya visitó antes
     if (!localStorage.getItem(STORAGE_KEY)) {{
-        // Marcar como visitado
         localStorage.setItem(STORAGE_KEY, Date.now().toString());
 
-        // Incrementar contador en JSONbin
-        fetch(`https://api.jsonbin.io/v3/b/${{BIN_ID}}/latest`, {{
+        fetch("https://api.jsonbin.io/v3/b/" + BIN_ID + "/latest", {{
             headers: {{ "X-Master-Key": API_KEY }}
         }})
         .then(res => res.json())
@@ -331,7 +332,7 @@ st.markdown(f"""
             const datos = data.record;
             datos.visitas = (datos.visitas || 0) + 1;
 
-            return fetch(`https://api.jsonbin.io/v3/b/${{BIN_ID}}`, {{
+            return fetch("https://api.jsonbin.io/v3/b/" + BIN_ID, {{
                 method: "PUT",
                 headers: {{
                     "Content-Type": "application/json",
@@ -340,17 +341,11 @@ st.markdown(f"""
                 body: JSON.stringify(datos)
             }});
         }})
-        .then(res => res.json())
-        .then(data => {{
-            // Actualizar el contador en pantalla
-            const el = document.getElementById("contador-visitas");
-            if (el) el.textContent = data.record.visitas.toLocaleString();
-        }})
         .catch(err => console.log("Error contador:", err));
     }}
 }})();
 </script>
-""", unsafe_allow_html=True)
+""", height=0)
 
 with st.expander("Instrucciones de uso"):
     st.markdown("""
