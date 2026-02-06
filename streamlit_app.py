@@ -368,16 +368,16 @@ if st.session_state.mensaje_alerta:
 # OPCIONES
 st.markdown("### Opciones")
 
-# Opción de idioma usando selectbox (mejor accesibilidad con teclado)
+# Opción de idioma
 st.markdown("**Idioma del texto alternativo:**")
 idioma = st.selectbox(
     "Idioma del texto alternativo",
-    options=["Español (traducir)", "Inglés (original)"],
+    options=["Español", "Inglés"],
     index=0,
     key="select_idioma",
     label_visibility="collapsed"
 )
-traducir = idioma == "Español (traducir)"
+usar_espanol = idioma == "Español"
 
 # Opción de metadatos
 st.markdown("**Guardar en metadatos:**")
@@ -435,14 +435,14 @@ if archivos and not st.session_state.resultados:
         try:
             import time
             barra = st.progress(0)
-            idioma_codigo = "es" if traducir else "en"
+            idioma_codigo = "es" if usar_espanol else "en"
 
             for i, archivo in enumerate(archivos):
                 barra.progress((i) / len(archivos))
 
                 # Delay entre imágenes para evitar rate limit
                 if i > 0:
-                    time.sleep(5)
+                    time.sleep(4)
 
                 imagen = Image.open(archivo)
                 if imagen.mode != 'RGB':
