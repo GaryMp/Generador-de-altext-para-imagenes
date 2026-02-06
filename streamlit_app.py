@@ -444,6 +444,42 @@ if archivos and not st.session_state.resultados:
         </div>
         """, unsafe_allow_html=True)
 
+        # Contenedor para el sonido de procesamiento
+        sonido_container = st.empty()
+        sonido_container.markdown("""
+        <script>
+            (function() {
+                // Crear contexto de audio
+                window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                window.processingSound = true;
+
+                function playTone() {
+                    if (!window.processingSound) return;
+
+                    const osc = window.audioCtx.createOscillator();
+                    const gain = window.audioCtx.createGain();
+
+                    osc.connect(gain);
+                    gain.connect(window.audioCtx.destination);
+
+                    osc.frequency.value = 440;
+                    osc.type = 'sine';
+
+                    gain.gain.setValueAtTime(0.1, window.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.3);
+
+                    osc.start(window.audioCtx.currentTime);
+                    osc.stop(window.audioCtx.currentTime + 0.3);
+
+                    // Repetir cada 2 segundos
+                    setTimeout(playTone, 2000);
+                }
+
+                playTone();
+            })();
+        </script>
+        """, unsafe_allow_html=True)
+
         try:
             import time
             barra = st.progress(0)
@@ -478,6 +514,26 @@ if archivos and not st.session_state.resultados:
             barra.empty()
             alerta_container.empty()
 
+            # Detener sonido y reproducir sonido de completado
+            sonido_container.markdown("""
+            <script>
+                window.processingSound = false;
+                if (window.audioCtx) {
+                    // Sonido de completado (tono más alto)
+                    const osc = window.audioCtx.createOscillator();
+                    const gain = window.audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(window.audioCtx.destination);
+                    osc.frequency.value = 880;
+                    osc.type = 'sine';
+                    gain.gain.setValueAtTime(0.15, window.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.5);
+                    osc.start(window.audioCtx.currentTime);
+                    osc.stop(window.audioCtx.currentTime + 0.5);
+                }
+            </script>
+            """, unsafe_allow_html=True)
+
             cantidad = len(st.session_state.resultados)
             actualizar_contadores(imagenes=cantidad)
             st.session_state.mensaje_alerta = f"Listo. {cantidad} {'imagen procesada' if cantidad == 1 else 'imágenes procesadas'}. Ya puedes descargar los resultados."
@@ -487,6 +543,12 @@ if archivos and not st.session_state.resultados:
 
         except Exception as e:
             alerta_container.empty()
+            # Detener sonido en caso de error
+            sonido_container.markdown("""
+            <script>
+                window.processingSound = false;
+            </script>
+            """, unsafe_allow_html=True)
             anunciar_alerta(f"Error: {str(e)}", mostrar_visual=True)
 
 elif not archivos:
