@@ -30,8 +30,28 @@ CSS_WCAG = """
         outline-offset: 3px !important;
     }
 
-    body, .stMarkdown, p, span, label, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+    body, .stMarkdown, p, label, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
         color: #1a1a1a !important;
+    }
+
+    /* Expander: fondo claro y texto visible siempre */
+    [data-testid="stExpander"] {
+        background-color: #ffffff !important;
+        border-color: #ccc !important;
+    }
+
+    [data-testid="stExpander"] summary,
+    [data-testid="stExpander"] summary span,
+    [data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
+        color: #1a1a1a !important;
+        background-color: #ffffff !important;
+    }
+
+    /* Text area: fondo claro y texto visible siempre */
+    .stTextArea textarea {
+        color: #1a1a1a !important;
+        background-color: #ffffff !important;
+        border-color: #ccc !important;
     }
 
     .stButton > button {
