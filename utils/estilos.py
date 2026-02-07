@@ -26,6 +26,12 @@ CSS_WCAG = """
         display: none !important;
     }
 
+    /* Ocultar iframes invisibles (contador) de lectores de pantalla */
+    iframe[height="0"],
+    iframe[style*="height: 0px"] {
+        display: none !important;
+    }
+
     /* Forzar tema claro global */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
         background-color: #ffffff !important;
