@@ -7,54 +7,12 @@ import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 import io
-import re
-import piexif
 import zipfile
-import requests
-import google.generativeai as genai
 
-# Configuración Gemini
-GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-
-@st.cache_resource
-def obtener_modelo_gemini():
-    """Cachea el modelo Gemini para reutilizarlo"""
-    return genai.GenerativeModel('gemini-2.0-flash')
-
-# Configuración JSONbin.io para contadores
-JSONBIN_BIN_ID = "6983d11b43b1c97be965ec3c"
-JSONBIN_API_KEY = "$2a$10$6j4MIEVKRPTDxuwR3GRw2unUp8KZ3TbTvl/3psM5RA7nEpMZ8ALxO"
-
-def obtener_contadores():
-    """Obtiene los contadores actuales desde JSONbin"""
-    try:
-        url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}/latest"
-        headers = {"X-Master-Key": JSONBIN_API_KEY}
-        response = requests.get(url, headers=headers, timeout=5)
-        if response.status_code == 200:
-            return response.json()["record"]
-        return {"imagenes": 0, "visitas": 0}
-    except:
-        return {"imagenes": 0, "visitas": 0}
-
-def actualizar_contadores(imagenes=0, visitas=0):
-    """Incrementa los contadores en JSONbin"""
-    try:
-        datos = obtener_contadores()
-        datos["imagenes"] = datos.get("imagenes", 0) + imagenes
-        datos["visitas"] = datos.get("visitas", 0) + visitas
-
-        url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
-        headers = {
-            "Content-Type": "application/json",
-            "X-Master-Key": JSONBIN_API_KEY
-        }
-        requests.put(url, json=datos, headers=headers, timeout=5)
-        return datos
-    except:
-        return {"imagenes": 0, "visitas": 0}
+from utils.gemini import GEMINI_API_KEY, describir_imagen
+from utils.imagen import limpiar_nombre, agregar_exif, imagen_a_bytes
+from utils.contadores import obtener_contadores, actualizar_contadores, JSONBIN_BIN_ID, JSONBIN_API_KEY
+from utils.estilos import CSS_WCAG
 
 st.set_page_config(
     page_title="GaryText Pro",
@@ -64,201 +22,7 @@ st.set_page_config(
 )
 
 # CSS WCAG 2.2 AA
-st.markdown("""
-<style>
-    #MainMenu, footer, header {visibility: hidden;}
-
-    /* Forzar tema claro */
-    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-        background-color: #ffffff !important;
-    }
-
-    [data-testid="stSidebar"] {
-        background-color: #f8f9fa !important;
-    }
-
-    /* Opción 1: Borde superior degradado rasta */
-    .stApp::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #228B22 0%, #228B22 33%, #FFD700 33%, #FFD700 66%, #DC143C 66%, #DC143C 100%);
-        z-index: 9999;
-    }
-
-    *:focus {
-        outline: 3px solid #0056b3 !important;
-        outline-offset: 3px !important;
-    }
-
-    body, .stMarkdown, p, span, label, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        color: #1a1a1a !important;
-    }
-
-    .stButton > button {
-        min-height: 44px;
-        min-width: 44px;
-        font-size: 1rem;
-        padding: 0.75rem 1.5rem;
-        background-color: #0056b3 !important;
-        color: #ffffff !important;
-        border: 2px solid #0056b3 !important;
-    }
-
-    .stButton > button:hover {
-        background-color: #004494 !important;
-    }
-
-    .stButton > button:focus {
-        box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #0056b3 !important;
-    }
-
-    .block-container {
-        max-width: 600px;
-        padding: 1rem;
-    }
-
-    /* Opción 3: Separadores con degradado rasta */
-    hr {
-        border: none !important;
-        height: 2px !important;
-        background: linear-gradient(90deg, #228B22 0%, #FFD700 50%, #DC143C 100%) !important;
-        opacity: 0.6 !important;
-        margin: 1rem 0 !important;
-    }
-
-    /* Radio buttons más accesibles */
-    .stRadio > div {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .stRadio > div > label {
-        min-height: 44px !important;
-        display: flex !important;
-        align-items: center !important;
-        padding: 8px 12px !important;
-        border: 2px solid #ccc !important;
-        border-radius: 4px !important;
-        cursor: pointer !important;
-        background: #fff !important;
-    }
-
-    .stRadio > div > label:focus-within {
-        border-color: #0056b3 !important;
-        outline: 2px solid #0056b3 !important;
-    }
-
-    .stRadio > div > label > div:first-child {
-        min-width: 24px !important;
-        min-height: 24px !important;
-    }
-
-    /* Opción 2: Estilo para título con colores rasta */
-    .rasta-title .gary-g { color: #228B22; }
-    .rasta-title .gary-a { color: #FFD700; }
-    .rasta-title .gary-r { color: #DC143C; }
-    .rasta-title .gary-y { color: #228B22; }
-
-    /* Opción 5: Footer con banda rasta */
-    .rasta-footer {
-        text-align: center;
-        padding-top: 0.5rem;
-        border-top: 3px solid;
-        border-image: linear-gradient(90deg, #228B22 0%, #FFD700 50%, #DC143C 100%) 1;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-def describir_imagen(imagen, idioma="es", reintentos=2):
-    """Genera descripción de imagen usando Gemini con reintentos automáticos"""
-    import time
-
-    if not GEMINI_API_KEY:
-        return "Error: API key de Gemini no configurada"
-
-    if imagen.mode != 'RGB':
-        imagen = imagen.convert('RGB')
-
-    model = obtener_modelo_gemini()
-
-    if idioma == "es":
-        prompt = """Analiza esta imagen y responde en este formato exacto:
-
-NOMBRE: [3-5 palabras descriptivas que identifiquen claramente el contenido, ejemplo: "chef preparando sushi japonés" o "niños jugando en parque"]
-DESCRIPCION: [Frase descriptiva detallada de 15-25 palabras]
-
-Reglas:
-- El NOMBRE debe ser claro y entendible por sí solo
-- La DESCRIPCION empieza directamente con el sujeto, sin usar "Es una", "En esta imagen", "Se muestra"
-- Responde solo en español"""
-    else:
-        prompt = """Analyze this image and respond in this exact format:
-
-NAME: [3-5 descriptive words that clearly identify the content, example: "chef preparing japanese sushi" or "children playing in park"]
-DESCRIPTION: [Detailed descriptive sentence of 15-25 words]
-
-Rules:
-- The NAME must be clear and understandable on its own
-- The DESCRIPTION starts directly with the subject, without using "This is", "In this image", "It shows"
-- Respond only in English"""
-
-    for intento in range(reintentos):
-        try:
-            response = model.generate_content([prompt, imagen])
-            texto = response.text.strip()
-
-            # Parsear respuesta para extraer nombre y descripción
-            nombre = ""
-            descripcion = texto
-
-            for linea in texto.split('\n'):
-                linea = linea.strip()
-                if linea.upper().startswith('NOMBRE:') or linea.upper().startswith('NAME:'):
-                    nombre = linea.split(':', 1)[1].strip()
-                elif linea.upper().startswith('DESCRIPCION:') or linea.upper().startswith('DESCRIPTION:'):
-                    descripcion = linea.split(':', 1)[1].strip()
-
-            # Si no se pudo parsear, usar el texto completo
-            if not nombre:
-                nombre = descripcion[:50] if descripcion else texto[:50]
-
-            return {"nombre": nombre, "descripcion": descripcion}
-        except Exception as e:
-            if "429" in str(e) and intento < reintentos - 1:
-                time.sleep(4)
-                continue
-            return {"nombre": "error", "descripcion": f"Error al procesar: {str(e)}"}
-
-    return {"nombre": "error", "descripcion": "Error: No se pudo procesar después de varios intentos"}
-
-def limpiar_nombre(texto):
-    texto = texto.lower().replace(" ", "_")
-    texto = re.sub(r'[^\w\s-]', '', texto)
-    return texto[:60].strip("_")
-
-def agregar_exif(imagen, texto_alt):
-    try:
-        exif_dict = {"0th": {}, "Exif": {}}
-        texto_bytes = texto_alt.encode('utf-8')
-        exif_dict["0th"][piexif.ImageIFD.ImageDescription] = texto_bytes
-        exif_dict["Exif"][piexif.ExifIFD.UserComment] = texto_bytes
-        return piexif.dump(exif_dict)
-    except:
-        return None
-
-def imagen_a_bytes(imagen, exif_bytes=None):
-    buffer = io.BytesIO()
-    if exif_bytes:
-        imagen.save(buffer, format="JPEG", exif=exif_bytes, quality=95)
-    else:
-        imagen.save(buffer, format="JPEG", quality=95)
-    buffer.seek(0)
-    return buffer
+st.markdown(CSS_WCAG, unsafe_allow_html=True)
 
 def anunciar_alerta(mensaje, mostrar_visual=False):
     """Genera una alerta para lectores de pantalla"""
@@ -325,6 +89,12 @@ def quitar_resultado(indice):
         st.session_state.uploader_key += 1
         st.session_state.mensaje_alerta = "Resultados eliminados. Puedes subir nuevas imágenes."
         st.session_state.mostrar_visual = True
+
+def sincronizar_descripcion(indice):
+    """Sincroniza el texto editado con los resultados almacenados"""
+    nuevo_texto = st.session_state.get(f"txt_{indice}", "")
+    if nuevo_texto and indice < len(st.session_state.resultados):
+        st.session_state.resultados[indice]['descripcion'] = nuevo_texto
 
 # ========== INTERFAZ ==========
 
@@ -535,11 +305,14 @@ if st.session_state.resultados:
             value=r['descripcion'],
             key=f"txt_{i}",
             height=100,
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            on_change=sincronizar_descripcion,
+            args=(i,)
         )
 
-        # Regenerar EXIF con el texto editado
-        exif_actual = agregar_exif(r['imagen'], texto_editado) if guardar_exif else None
+        # Regenerar EXIF con el texto editado (usar descripcion sincronizada)
+        texto_para_descarga = st.session_state.resultados[i]['descripcion']
+        exif_actual = agregar_exif(r['imagen'], texto_para_descarga) if guardar_exif else None
         buffer = imagen_a_bytes(r['imagen'], exif_actual)
 
         col1, col2 = st.columns([3, 1])
