@@ -11,10 +11,18 @@ CSS_WCAG = """
     [data-testid="stMainMenu"],
     [data-testid="stStatusWidget"],
     .stDeployButton,
-    [data-testid="manage-app-button"],
     .stAppDeployButton,
+    .stStatusWidget,
+    [data-testid="manage-app-button"],
     [data-testid="stManageApp"],
-    .stStatusWidget {
+    [data-testid="stBottom"],
+    [data-testid="stBottomBlockContainer"] {
+        display: none !important;
+    }
+
+    /* Streamlit Cloud: ocultar manage app overlay */
+    [class*="manage"], [data-testid*="manage"],
+    iframe[title="Manage app"] {
         display: none !important;
     }
 
