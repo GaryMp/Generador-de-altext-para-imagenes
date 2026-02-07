@@ -4,16 +4,17 @@ CSS_WCAG = """
 <style>
     #MainMenu, footer, header {visibility: hidden;}
 
-    /* Forzar tema claro */
+    /* Forzar tema claro global */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
         background-color: #ffffff !important;
+        color: #1a1a1a !important;
     }
 
     [data-testid="stSidebar"] {
         background-color: #f8f9fa !important;
     }
 
-    /* Opción 1: Borde superior degradado rasta */
+    /* Borde superior degradado rasta */
     .stApp::before {
         content: '';
         position: fixed;
@@ -30,6 +31,7 @@ CSS_WCAG = """
         outline-offset: 3px !important;
     }
 
+    /* Texto general */
     body, .stMarkdown, p, label, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
         color: #1a1a1a !important;
     }
@@ -42,9 +44,31 @@ CSS_WCAG = """
 
     [data-testid="stExpander"] summary,
     [data-testid="stExpander"] summary span,
-    [data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
+    [data-testid="stExpander"] div[data-testid="stExpanderDetails"],
+    [data-testid="stExpander"] div[data-testid="stExpanderDetails"] p,
+    [data-testid="stExpander"] div[data-testid="stExpanderDetails"] li {
         color: #1a1a1a !important;
         background-color: #ffffff !important;
+    }
+
+    /* Selectbox: fondo claro y texto visible */
+    .stSelectbox [data-testid="stMarkdownContainer"],
+    .stSelectbox div[data-baseweb="select"],
+    .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;
+        color: #1a1a1a !important;
+    }
+
+    .stSelectbox svg {
+        fill: #1a1a1a !important;
+    }
+
+    /* Dropdown del selectbox (lista desplegable) */
+    div[data-baseweb="popover"],
+    div[data-baseweb="popover"] ul,
+    div[data-baseweb="popover"] li {
+        background-color: #ffffff !important;
+        color: #1a1a1a !important;
     }
 
     /* Text area: fondo claro y texto visible siempre */
@@ -54,6 +78,28 @@ CSS_WCAG = """
         border-color: #ccc !important;
     }
 
+    .stTextArea label {
+        color: #1a1a1a !important;
+    }
+
+    /* File uploader: fondo claro y texto visible */
+    [data-testid="stFileUploader"],
+    [data-testid="stFileUploader"] section,
+    [data-testid="stFileUploader"] section > div {
+        background-color: #ffffff !important;
+        color: #1a1a1a !important;
+    }
+
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span {
+        color: #1a1a1a !important;
+    }
+
+    [data-testid="stFileUploader"] section > button {
+        color: #0056b3 !important;
+    }
+
+    /* Botones principales */
     .stButton > button {
         min-height: 44px;
         min-width: 44px;
@@ -72,12 +118,49 @@ CSS_WCAG = """
         box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #0056b3 !important;
     }
 
+    /* Download buttons */
+    .stDownloadButton > button {
+        min-height: 44px;
+        min-width: 44px;
+        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+        background-color: #0056b3 !important;
+        color: #ffffff !important;
+        border: 2px solid #0056b3 !important;
+    }
+
+    .stDownloadButton > button:hover {
+        background-color: #004494 !important;
+    }
+
+    .stDownloadButton > button:focus {
+        box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #0056b3 !important;
+    }
+
+    /* Barra de progreso */
+    .stProgress > div {
+        background-color: #ffffff !important;
+    }
+
+    .stProgress [data-testid="stMarkdownContainer"] p {
+        color: #1a1a1a !important;
+    }
+
+    /* Alertas: st.success y st.error */
+    [data-testid="stAlert"] {
+        color: #1a1a1a !important;
+    }
+
+    [data-testid="stAlert"] p {
+        color: #1a1a1a !important;
+    }
+
     .block-container {
         max-width: 600px;
         padding: 1rem;
     }
 
-    /* Opción 3: Separadores con degradado rasta */
+    /* Separadores con degradado rasta */
     hr {
         border: none !important;
         height: 2px !important;
@@ -102,6 +185,7 @@ CSS_WCAG = """
         border-radius: 4px !important;
         cursor: pointer !important;
         background: #fff !important;
+        color: #1a1a1a !important;
     }
 
     .stRadio > div > label:focus-within {
@@ -114,18 +198,23 @@ CSS_WCAG = """
         min-height: 24px !important;
     }
 
-    /* Opción 2: Estilo para título con colores rasta */
+    /* Estilo para título con colores rasta */
     .rasta-title .gary-g { color: #228B22; }
     .rasta-title .gary-a { color: #FFD700; }
     .rasta-title .gary-r { color: #DC143C; }
     .rasta-title .gary-y { color: #228B22; }
 
-    /* Opción 5: Footer con banda rasta */
+    /* Footer con banda rasta */
     .rasta-footer {
         text-align: center;
         padding-top: 0.5rem;
         border-top: 3px solid;
         border-image: linear-gradient(90deg, #228B22 0%, #FFD700 50%, #DC143C 100%) 1;
+        color: #1a1a1a !important;
+    }
+
+    .rasta-footer p {
+        color: #555 !important;
     }
 </style>
 """
