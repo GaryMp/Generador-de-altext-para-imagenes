@@ -20,6 +20,15 @@ CSS_WCAG = """
         display: none !important;
     }
 
+    /* Ocultar anchor links de headings (Streamlit los agrega automáticamente) */
+    [data-testid="stHeaderActionElements"],
+    a[data-testid="stHeaderLink"],
+    .stMarkdown h1 a,
+    .stMarkdown h2 a,
+    .stMarkdown h3 a {
+        display: none !important;
+    }
+
     /* Streamlit Cloud: ocultar manage app overlay */
     [class*="manage"], [data-testid*="manage"],
     iframe[title="Manage app"] {
@@ -52,6 +61,19 @@ CSS_WCAG = """
         height: 4px;
         background: linear-gradient(90deg, #228B22 0%, #228B22 33%, #FFD700 33%, #FFD700 66%, #DC143C 66%, #DC143C 100%);
         z-index: 9999;
+    }
+
+    /* Animación rasta durante procesamiento */
+    @keyframes rasta-slide {
+        0% { background-position: 0% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .rasta-processing .stApp::before {
+        height: 6px;
+        background: repeating-linear-gradient(90deg, #228B22 0%, #FFD700 16%, #DC143C 33%, #228B22 50%);
+        background-size: 200% 100%;
+        animation: rasta-slide 1.5s linear infinite;
     }
 
     *:focus {
@@ -228,7 +250,7 @@ CSS_WCAG = """
 
     /* Estilo para título con colores rasta */
     .rasta-title .gary-g { color: #228B22; }
-    .rasta-title .gary-a { color: #FFD700; }
+    .rasta-title .gary-a { color: #B8860B; }
     .rasta-title .gary-r { color: #DC143C; }
     .rasta-title .gary-y { color: #228B22; }
 
@@ -266,12 +288,92 @@ CSS_WCAG = """
     }
 
     [data-testid="stExpander"] details > summary::before {
-        content: "▸ " !important;
-        font-size: 1rem !important;
+        content: "" !important;
+        display: inline-block !important;
+        width: 0 !important;
+        height: 0 !important;
+        border-left: 6px solid #1a1a1a !important;
+        border-top: 5px solid transparent !important;
+        border-bottom: 5px solid transparent !important;
+        margin-right: 8px !important;
+        vertical-align: middle !important;
+        transition: transform 0.2s !important;
     }
 
     [data-testid="stExpander"] details[open] > summary::before {
-        content: "▾ " !important;
+        transform: rotate(90deg) !important;
+    }
+
+    /* Texto solo para screen readers (invisible visualmente) */
+    .sr-only {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+    }
+
+    /* ========== RESPONSIVE MÓVIL ========== */
+    @media (max-width: 640px) {
+        /* Contenedor principal: más padding lateral */
+        .block-container {
+            max-width: 100% !important;
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        /* Título más pequeño en móvil */
+        .rasta-title {
+            font-size: 1.8rem !important;
+        }
+
+        /* Botones: texto más compacto, siempre ancho completo */
+        .stButton > button,
+        .stDownloadButton > button {
+            font-size: 0.9rem !important;
+            padding: 0.6rem 0.8rem !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* Columnas de resultados: apilar verticalmente */
+        [data-testid="stHorizontalBlock"] {
+            flex-wrap: wrap !important;
+        }
+
+        [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+            min-width: 100% !important;
+            flex: 1 1 100% !important;
+        }
+
+        /* Thumbnail centrado en móvil */
+        [data-testid="stImage"] {
+            text-align: center !important;
+        }
+
+        [data-testid="stImage"] img {
+            margin: 0 auto !important;
+        }
+
+        /* Text area más bajo en móvil */
+        .stTextArea textarea {
+            height: 80px !important;
+        }
+
+        /* Footer texto más pequeño */
+        .rasta-footer p {
+            font-size: 0.75rem !important;
+        }
+
+        /* Expander más compacto */
+        [data-testid="stExpander"] summary {
+            font-size: 0.9rem !important;
+            padding: 8px !important;
+        }
     }
 </style>
 """

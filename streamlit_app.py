@@ -25,6 +25,24 @@ st.set_page_config(
 # CSS WCAG 2.2 AA
 st.markdown(CSS_WCAG, unsafe_allow_html=True)
 
+# Inyectar lang="es" para screen readers (WCAG 3.1.1)
+components.html("""
+<script>
+(function() {
+    try {
+        var root = window.parent.document.documentElement;
+        root.setAttribute('lang', 'es');
+    } catch(e) {}
+    try { if (window.frameElement) {
+        window.frameElement.setAttribute('aria-hidden', 'true');
+        window.frameElement.tabIndex = -1;
+        window.frameElement.title = '';
+        window.frameElement.style.display = 'none';
+    }} catch(e) {}
+})();
+</script>
+""", height=0)
+
 # Estado inicial
 if 'resultados' not in st.session_state:
     st.session_state.resultados = []
@@ -44,11 +62,11 @@ if 'procesando_indice' not in st.session_state:
 # Funciones de callback
 def marcar_descarga(nombre_archivo):
     st.session_state.mensaje_alerta = f"Descarga completada: {nombre_archivo}"
-    st.session_state.mostrar_visual = False
+    st.session_state.mostrar_visual = True
 
 def marcar_descarga_zip():
     st.session_state.mensaje_alerta = "Descarga completada: todas las imágenes en archivo ZIP."
-    st.session_state.mostrar_visual = False
+    st.session_state.mostrar_visual = True
 
 def limpiar_todo():
     st.session_state.resultados = []
@@ -76,7 +94,10 @@ def sincronizar_descripcion(indice):
 # ========== INTERFAZ ==========
 
 st.markdown("""
-<h1 tabindex="-1" class="rasta-title"><span class="gary-g">G</span><span class="gary-a">a</span><span class="gary-r">r</span><span class="gary-y">y</span>Text Pro</h1>
+<h1 tabindex="-1" class="rasta-title">
+    <span class="sr-only">GaryText Pro</span>
+    <span aria-hidden="true"><span class="gary-g">G</span><span class="gary-a">a</span><span class="gary-r">r</span><span class="gary-y">y</span>Text Pro</span>
+</h1>
 <p>Genera texto alternativo para tus imágenes con inteligencia artificial.</p>
 """, unsafe_allow_html=True)
 
@@ -114,7 +135,7 @@ usar_espanol = idioma == "Español"
 guardar_exif = metadatos == "Sí, guardar en EXIF"
 
 # SUBIR IMÁGENES
-st.markdown("### Subir imágenes")
+st.markdown('<h2 id="subir-imagenes">Subir imágenes</h2>', unsafe_allow_html=True)
 st.markdown("Formatos: JPG, PNG, WEBP")
 
 archivos = st.file_uploader(
@@ -141,6 +162,9 @@ if archivos:
 
 # PROCESAR UNA IMAGEN A LA VEZ (con feedback NVDA entre cada una)
 if archivos and st.session_state.procesando_indice >= 0:
+    # Animación rasta durante procesamiento
+    st.markdown('<style>.stApp::before{height:6px;background:repeating-linear-gradient(90deg,#228B22 0%,#FFD700 16%,#DC143C 33%,#228B22 50%);background-size:200% 100%;animation:rasta-slide 1.5s linear infinite;}</style>', unsafe_allow_html=True)
+
     idx = st.session_state.procesando_indice
     total = len(archivos)
 
@@ -205,21 +229,24 @@ if archivos and st.session_state.procesando_indice >= 0:
 # RESULTADOS (solo cuando terminó el procesamiento)
 if st.session_state.resultados and st.session_state.procesando_indice < 0:
     st.markdown("---")
-    st.markdown("### Resultados")
+    st.markdown("## Resultados")
 
     # Resultados individuales
     for i, r in enumerate(st.session_state.resultados):
-        st.markdown(f"**Imagen {i+1}:** {r['nombre']}")
-
-        texto_editado = st.text_area(
-            f"Texto alternativo imagen {i+1}",
-            value=r['descripcion'],
-            key=f"txt_{i}",
-            height=100,
-            label_visibility="collapsed",
-            on_change=sincronizar_descripcion,
-            args=(i,)
-        )
+        col_thumb, col_info = st.columns([1, 3])
+        with col_thumb:
+            st.image(r['imagen'], width=100, caption=f"Imagen {i+1}")
+        with col_info:
+            st.markdown(f"**{r['nombre']}**")
+            texto_editado = st.text_area(
+                f"Texto alternativo imagen {i+1}",
+                value=r['descripcion'],
+                key=f"txt_{i}",
+                height=100,
+                label_visibility="collapsed",
+                on_change=sincronizar_descripcion,
+                args=(i,)
+            )
 
         # Regenerar EXIF con el texto editado (usar descripcion sincronizada)
         texto_para_descarga = st.session_state.resultados[i]['descripcion']
@@ -239,7 +266,8 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
                 args=(r['nombre'],)
             )
         with col2:
-            if st.button("Quitar", key=f"rm_{i}", use_container_width=True, on_click=quitar_resultado, args=(i,)):
+            nombre_corto = r['nombre'][:20] + "..." if len(r['nombre']) > 23 else r['nombre']
+            if st.button(f"Quitar: {nombre_corto}", key=f"rm_{i}", use_container_width=True, on_click=quitar_resultado, args=(i,)):
                 st.rerun()
 
         if i < len(st.session_state.resultados) - 1:
@@ -250,20 +278,30 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
     if len(st.session_state.resultados) > 1:
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+            nombres_usados = {}
             for i, r in enumerate(st.session_state.resultados):
                 texto_actual = st.session_state.get(f"txt_{i}", r['descripcion'])
                 exif_zip = agregar_exif(r['imagen'], texto_actual) if guardar_exif else None
                 img_bytes = imagen_a_bytes(r['imagen'], exif_zip)
-                zf.writestr(r['nombre'], img_bytes.getvalue())
+                # Evitar nombres duplicados en el ZIP
+                nombre = r['nombre']
+                if nombre in nombres_usados:
+                    nombres_usados[nombre] += 1
+                    base, ext = nombre.rsplit('.', 1)
+                    nombre = f"{base}_{nombres_usados[nombre]}.{ext}"
+                else:
+                    nombres_usados[nombre] = 0
+                zf.writestr(nombre, img_bytes.getvalue())
         zip_buffer.seek(0)
 
         col1, col2 = st.columns([3, 1])
         with col1:
             st.download_button(
                 "Descargar todo en ZIP",
-                data=zip_buffer,
+                data=zip_buffer.getvalue(),
                 file_name="garytext_imagenes.zip",
                 mime="application/zip",
+                key="dl_zip",
                 use_container_width=True,
                 on_click=marcar_descarga_zip
             )
@@ -278,7 +316,7 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
 st.markdown(f"""
 <div class="rasta-footer">
     <p style="margin-bottom: 0.3rem; font-size: 0.85rem;">
-        👁️ {contadores.get('visitas', 0):,} visitas · 📊 {contadores.get('imagenes', 0):,} imágenes analizadas
+        <span aria-hidden="true">👁️</span> {contadores.get('visitas', 0):,} visitas · <span aria-hidden="true">📊</span> {contadores.get('imagenes', 0):,} imágenes analizadas
     </p>
     <p style="margin-bottom: 0.5rem;">GaryText Pro v0.1 - Por Gary Dev</p>
     <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">
