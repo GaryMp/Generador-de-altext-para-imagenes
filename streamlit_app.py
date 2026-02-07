@@ -8,6 +8,7 @@ import streamlit.components.v1 as components
 from PIL import Image
 import io
 import zipfile
+import time
 
 from utils.gemini import GEMINI_API_KEY, describir_imagen
 from utils.imagen import limpiar_nombre, agregar_exif, imagen_a_bytes
@@ -24,36 +25,6 @@ st.set_page_config(
 # CSS WCAG 2.2 AA
 st.markdown(CSS_WCAG, unsafe_allow_html=True)
 
-def anunciar_alerta(mensaje, mostrar_visual=False):
-    """Genera una alerta para lectores de pantalla"""
-    st.markdown(f"""
-    <script>
-        (function() {{
-            var alertRegion = document.getElementById('sr-live-region');
-            if (!alertRegion) {{
-                alertRegion = document.createElement('div');
-                alertRegion.id = 'sr-live-region';
-                alertRegion.setAttribute('role', 'alert');
-                alertRegion.setAttribute('aria-live', 'assertive');
-                alertRegion.setAttribute('aria-atomic', 'true');
-                alertRegion.style.position = 'absolute';
-                alertRegion.style.left = '-10000px';
-                alertRegion.style.width = '1px';
-                alertRegion.style.height = '1px';
-                alertRegion.style.overflow = 'hidden';
-                document.body.appendChild(alertRegion);
-            }}
-            alertRegion.textContent = '';
-            setTimeout(function() {{
-                alertRegion.textContent = '{mensaje}';
-            }}, 150);
-        }})();
-    </script>
-    """, unsafe_allow_html=True)
-
-    if mostrar_visual:
-        st.success(mensaje)
-
 # Estado inicial
 if 'resultados' not in st.session_state:
     st.session_state.resultados = []
@@ -65,6 +36,10 @@ if 'mensaje_alerta' not in st.session_state:
     st.session_state.mensaje_alerta = ""
 if 'mostrar_visual' not in st.session_state:
     st.session_state.mostrar_visual = False
+if 'error_procesamiento' not in st.session_state:
+    st.session_state.error_procesamiento = False
+if 'procesando_indice' not in st.session_state:
+    st.session_state.procesando_indice = -1
 
 # Funciones de callback
 def marcar_descarga(nombre_archivo):
@@ -79,6 +54,8 @@ def limpiar_todo():
     st.session_state.resultados = []
     st.session_state.archivos_previos = set()
     st.session_state.uploader_key += 1
+    st.session_state.error_procesamiento = False
+    st.session_state.procesando_indice = -1
     st.session_state.mensaje_alerta = "Resultados eliminados. Puedes subir nuevas imágenes."
     st.session_state.mostrar_visual = True
 
@@ -107,65 +84,8 @@ st.markdown("""
 if not GEMINI_API_KEY:
     st.error("API key de Gemini no configurada. Configura GEMINI_API_KEY en los secrets de Streamlit.")
 
-# Mostrar contadores
+# Obtener contadores (se muestran en el footer)
 contadores = obtener_contadores()
-st.markdown(f"""
-<div style="text-align: center; padding: 0.5rem; background: linear-gradient(90deg, rgba(34,139,34,0.1), rgba(255,215,0,0.1), rgba(220,20,60,0.1)); border-radius: 8px; margin-bottom: 1rem;">
-    <span style="margin-right: 1.5rem;">👁️ <strong>{contadores.get('visitas', 0):,}</strong> visitas</span>
-    <span>📊 <strong>{contadores.get('imagenes', 0):,}</strong> imágenes analizadas</span>
-</div>
-""", unsafe_allow_html=True)
-
-# Contador de visitas con JavaScript (se ejecuta en iframe)
-components.html(f"""
-<script>
-(function() {{
-    const BIN_ID = "{JSONBIN_BIN_ID}";
-    const API_KEY = "{JSONBIN_API_KEY}";
-    const STORAGE_KEY = "garytext_visitado";
-
-    if (!localStorage.getItem(STORAGE_KEY)) {{
-        localStorage.setItem(STORAGE_KEY, Date.now().toString());
-
-        fetch("https://api.jsonbin.io/v3/b/" + BIN_ID + "/latest", {{
-            headers: {{ "X-Master-Key": API_KEY }}
-        }})
-        .then(res => res.json())
-        .then(data => {{
-            const datos = data.record;
-            datos.visitas = (datos.visitas || 0) + 1;
-
-            return fetch("https://api.jsonbin.io/v3/b/" + BIN_ID, {{
-                method: "PUT",
-                headers: {{
-                    "Content-Type": "application/json",
-                    "X-Master-Key": API_KEY
-                }},
-                body: JSON.stringify(datos)
-            }});
-        }})
-        .catch(err => console.log("Error contador:", err));
-    }}
-}})();
-</script>
-""", height=0)
-
-with st.expander("Instrucciones de uso"):
-    st.markdown("""
-**Pasos:**
-1. Selecciona tus opciones
-2. Sube imágenes con el botón Examinar
-3. Presiona Generar con IA
-4. Descarga los resultados
-
-**Teclado:**
-- Tab: siguiente elemento
-- Shift+Tab: anterior
-- Enter o Espacio: activar
-- Flechas arriba/abajo: cambiar opciones
-    """)
-
-st.markdown("---")
 
 # Mostrar alerta guardada después de rerun
 if st.session_state.mensaje_alerta:
@@ -173,34 +93,25 @@ if st.session_state.mensaje_alerta:
     visual = st.session_state.mostrar_visual
     st.session_state.mensaje_alerta = ""
     st.session_state.mostrar_visual = False
-    anunciar_alerta(mensaje_mostrar, mostrar_visual=visual)
+    if visual:
+        st.success(mensaje_mostrar)
 
-# OPCIONES
-st.markdown("### Opciones")
-
-# Opción de idioma
-st.markdown("**Idioma del texto alternativo:**")
-idioma = st.selectbox(
-    "Idioma del texto alternativo",
-    options=["Español", "Inglés"],
-    index=0,
-    key="select_idioma",
-    label_visibility="collapsed"
-)
+# OPCIONES AVANZADAS (colapsadas por defecto)
+with st.expander("Opciones avanzadas"):
+    idioma = st.selectbox(
+        "Idioma del texto alternativo",
+        options=["Español", "Inglés"],
+        index=0,
+        key="select_idioma"
+    )
+    metadatos = st.selectbox(
+        "Guardar en metadatos de imagen",
+        options=["Sí, guardar en EXIF", "No, solo renombrar"],
+        index=0,
+        key="select_exif"
+    )
 usar_espanol = idioma == "Español"
-
-# Opción de metadatos
-st.markdown("**Guardar en metadatos:**")
-metadatos = st.selectbox(
-    "Guardar en metadatos de imagen",
-    options=["Sí, guardar en EXIF", "No, solo renombrar"],
-    index=0,
-    key="select_exif",
-    label_visibility="collapsed"
-)
 guardar_exif = metadatos == "Sí, guardar en EXIF"
-
-st.markdown("---")
 
 # SUBIR IMÁGENES
 st.markdown("### Subir imágenes")
@@ -214,85 +125,85 @@ archivos = st.file_uploader(
     label_visibility="collapsed"
 )
 
-# Detectar cambio en archivos
+# Detectar cambio en archivos → iniciar procesamiento
 if archivos:
     nombres_actuales = {f.name for f in archivos}
 
     if nombres_actuales != st.session_state.archivos_previos:
         st.session_state.archivos_previos = nombres_actuales
         st.session_state.resultados = []
+        st.session_state.error_procesamiento = False
+        st.session_state.procesando_indice = 0
+        total = len(archivos)
+        st.session_state.mensaje_alerta = f"Analizando {total} {'imagen' if total == 1 else 'imágenes'}, espera un momento."
+        st.session_state.mostrar_visual = True
+        st.rerun()
 
-        cantidad = len(archivos)
-        mensaje = f"{cantidad} {'imagen subida' if cantidad == 1 else 'imágenes subidas'}, {'lista' if cantidad == 1 else 'listas'} para procesar. Presiona el botón Generar con IA."
-        anunciar_alerta(mensaje, mostrar_visual=True)
+# PROCESAR UNA IMAGEN A LA VEZ (con feedback NVDA entre cada una)
+if archivos and st.session_state.procesando_indice >= 0:
+    idx = st.session_state.procesando_indice
+    total = len(archivos)
 
-st.markdown("---")
-
-# BOTÓN GENERAR
-st.markdown("### Generar")
-
-if archivos and not st.session_state.resultados:
-    if st.button("Generar con IA", type="primary", use_container_width=True):
-
-        # Contenedor para la alerta de procesamiento
-        alerta_container = st.empty()
-        alerta_container.markdown("""
-        <div role="alert" aria-live="assertive" aria-atomic="true">
-            Analizando imágenes, espera un momento.
-        </div>
-        """, unsafe_allow_html=True)
+    if idx < total and not st.session_state.error_procesamiento:
+        # Barra de progreso visual
+        st.progress(idx / total, text=f"Procesando imagen {idx + 1} de {total}...")
 
         try:
-            import time
-            barra = st.progress(0)
+            # Delay para rate limit
+            time.sleep(4 if idx > 0 else 1)
+
             idioma_codigo = "es" if usar_espanol else "en"
+            archivo = archivos[idx]
+            imagen = Image.open(archivo)
+            if imagen.mode != 'RGB':
+                imagen = imagen.convert('RGB')
 
-            for i, archivo in enumerate(archivos):
-                barra.progress((i) / len(archivos))
+            resultado = describir_imagen(imagen, idioma_codigo)
 
-                # Delay para evitar rate limit (4s entre cada imagen)
-                if i > 0:
-                    time.sleep(4)
+            nombre_nuevo = f"{limpiar_nombre(resultado['nombre'])}.jpg"
+            descripcion = resultado['descripcion']
+            exif = agregar_exif(imagen, descripcion) if guardar_exif else None
+
+            st.session_state.resultados.append({
+                "nombre": nombre_nuevo,
+                "descripcion": descripcion,
+                "imagen": imagen,
+                "exif": exif
+            })
+
+            st.session_state.procesando_indice = idx + 1
+
+            if idx + 1 < total:
+                restantes = total - (idx + 1)
+                if restantes == 1:
+                    st.session_state.mensaje_alerta = f"Imagen {idx+1} de {total} procesada. Falta solo una más."
                 else:
-                    time.sleep(1)  # Pequeño delay inicial
-
-                imagen = Image.open(archivo)
-                if imagen.mode != 'RGB':
-                    imagen = imagen.convert('RGB')
-
-                resultado = describir_imagen(imagen, idioma_codigo)
-
-                nombre_nuevo = f"{limpiar_nombre(resultado['nombre'])}.jpg"
-                descripcion = resultado['descripcion']
-                exif = agregar_exif(imagen, descripcion) if guardar_exif else None
-
-                st.session_state.resultados.append({
-                    "nombre": nombre_nuevo,
-                    "descripcion": descripcion,
-                    "imagen": imagen,
-                    "exif": exif
-                })
-
-            barra.progress(100)
-            barra.empty()
-            alerta_container.empty()
-
-            cantidad = len(st.session_state.resultados)
-            actualizar_contadores(imagenes=cantidad)
-            st.session_state.mensaje_alerta = f"Listo. {cantidad} {'imagen procesada' if cantidad == 1 else 'imágenes procesadas'}. Ya puedes descargar los resultados."
-            st.session_state.mostrar_visual = True
+                    st.session_state.mensaje_alerta = f"Imagen {idx+1} de {total} procesada. Faltan {restantes} más."
+                st.session_state.mostrar_visual = True
+            else:
+                # Todas procesadas
+                st.session_state.procesando_indice = -1
+                actualizar_contadores(imagenes=total)
+                st.session_state.mensaje_alerta = f"Listo. {total} {'imagen procesada' if total == 1 else 'imágenes procesadas'}. Ya puedes descargar los resultados."
+                st.session_state.mostrar_visual = True
 
             st.rerun()
 
         except Exception as e:
-            alerta_container.empty()
-            anunciar_alerta(f"Error: {str(e)}", mostrar_visual=True)
+            st.session_state.error_procesamiento = True
+            st.session_state.procesando_indice = -1
+            st.error(f"Error al procesar: {str(e)}")
 
-elif not archivos:
-    st.markdown("Sube al menos una imagen para continuar.")
+    elif st.session_state.error_procesamiento:
+        st.error("Hubo un error al procesar las imágenes.")
+        if st.button("Reintentar", type="primary", use_container_width=True):
+            st.session_state.error_procesamiento = False
+            st.session_state.procesando_indice = 0
+            st.session_state.resultados = []
+            st.rerun()
 
-# RESULTADOS
-if st.session_state.resultados:
+# RESULTADOS (solo cuando terminó el procesamiento)
+if st.session_state.resultados and st.session_state.procesando_indice < 0:
     st.markdown("---")
     st.markdown("### Resultados")
 
@@ -363,9 +274,12 @@ if st.session_state.resultados:
         if st.button("Limpiar y procesar nuevas imágenes", use_container_width=True, on_click=limpiar_todo):
             st.rerun()
 
-# Footer
-st.markdown("""
+# Footer con contadores
+st.markdown(f"""
 <div class="rasta-footer">
+    <p style="margin-bottom: 0.3rem; font-size: 0.85rem;">
+        👁️ {contadores.get('visitas', 0):,} visitas · 📊 {contadores.get('imagenes', 0):,} imágenes analizadas
+    </p>
     <p style="margin-bottom: 0.5rem;">GaryText Pro v0.1 - Por Gary Dev</p>
     <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">
         Si te ha parecido útil esta aplicación, no dudes en donarme un café
@@ -375,3 +289,38 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
+# Contador de visitas con JavaScript (al final para no interferir con lectores de pantalla)
+components.html(f"""
+<script>
+(function() {{
+    try {{ if (window.frameElement) {{
+        window.frameElement.setAttribute('aria-hidden', 'true');
+        window.frameElement.tabIndex = -1;
+        window.frameElement.title = '';
+    }} }} catch(e) {{}}
+
+    const BIN_ID = "{JSONBIN_BIN_ID}";
+    const API_KEY = "{JSONBIN_API_KEY}";
+    const STORAGE_KEY = "garytext_visitado";
+
+    if (!localStorage.getItem(STORAGE_KEY)) {{
+        localStorage.setItem(STORAGE_KEY, Date.now().toString());
+        fetch("https://api.jsonbin.io/v3/b/" + BIN_ID + "/latest", {{
+            headers: {{ "X-Master-Key": API_KEY }}
+        }})
+        .then(res => res.json())
+        .then(data => {{
+            const datos = data.record;
+            datos.visitas = (datos.visitas || 0) + 1;
+            return fetch("https://api.jsonbin.io/v3/b/" + BIN_ID, {{
+                method: "PUT",
+                headers: {{ "Content-Type": "application/json", "X-Master-Key": API_KEY }},
+                body: JSON.stringify(datos)
+            }});
+        }})
+        .catch(err => console.log("Error contador:", err));
+    }}
+}})();
+</script>
+""", height=0)

@@ -2,7 +2,17 @@
 
 CSS_WCAG = """
 <style>
-    #MainMenu, footer, header {visibility: hidden;}
+    /* Ocultar todo el chrome de Streamlit del árbol de accesibilidad */
+    #MainMenu, footer, header,
+    [data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stToolbarActions"],
+    [data-testid="stDecoration"],
+    [data-testid="stMainMenu"],
+    [data-testid="stStatusWidget"],
+    .stDeployButton {
+        display: none !important;
+    }
 
     /* Forzar tema claro global */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
@@ -215,6 +225,35 @@ CSS_WCAG = """
 
     .rasta-footer p {
         color: #555 !important;
+    }
+
+    /* Ocultar lista de archivos subidos (el flujo es directo) */
+    [data-testid="stFileUploaderFile"] {
+        display: none !important;
+    }
+
+    /* Accesibilidad: ocultar icono Material de lectores de pantalla */
+    [data-testid="stExpander"] summary [data-testid="stIconMaterial"],
+    [data-testid="stExpander"] summary span[translate="no"],
+    [data-testid="stExpander"] summary .exvv1vr0 {
+        display: none !important;
+    }
+
+    [data-testid="stExpander"] details > summary {
+        list-style: none !important;
+    }
+
+    [data-testid="stExpander"] details > summary::-webkit-details-marker {
+        display: none !important;
+    }
+
+    [data-testid="stExpander"] details > summary::before {
+        content: "▸ " !important;
+        font-size: 1rem !important;
+    }
+
+    [data-testid="stExpander"] details[open] > summary::before {
+        content: "▾ " !important;
     }
 </style>
 """
