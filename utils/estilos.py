@@ -10,7 +10,11 @@ CSS_WCAG = """
     [data-testid="stDecoration"],
     [data-testid="stMainMenu"],
     [data-testid="stStatusWidget"],
-    .stDeployButton {
+    .stDeployButton,
+    [data-testid="manage-app-button"],
+    .stAppDeployButton,
+    [data-testid="stManageApp"],
+    .stStatusWidget {
         display: none !important;
     }
 
