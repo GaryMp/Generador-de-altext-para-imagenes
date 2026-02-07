@@ -1,9 +1,10 @@
 """Módulo de contadores: lectura y actualización de estadísticas en JSONBin"""
 
+import streamlit as st
 import requests
 
-JSONBIN_BIN_ID = "6983d11b43b1c97be965ec3c"
-JSONBIN_API_KEY = "$2a$10$6j4MIEVKRPTDxuwR3GRw2unUp8KZ3TbTvl/3psM5RA7nEpMZ8ALxO"
+JSONBIN_BIN_ID = st.secrets.get("JSONBIN_BIN_ID", "")
+JSONBIN_API_KEY = st.secrets.get("JSONBIN_API_KEY", "")
 
 
 def obtener_contadores():
