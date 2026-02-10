@@ -1,8 +1,12 @@
 """Módulo de IA: configuración y generación de descripciones con Gemini"""
 
+import logging
 import time
 import streamlit as st
 import google.generativeai as genai
+
+log = logging.getLogger("garytext")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
@@ -48,8 +52,12 @@ Rules:
 
     for intento in range(reintentos):
         try:
+            log.info(f"Enviando request a Gemini (intento {intento + 1}/{reintentos})")
+            inicio = time.time()
             response = model.generate_content([prompt, imagen])
+            duracion = time.time() - inicio
             texto = response.text.strip()
+            log.info(f"Respuesta recibida en {duracion:.1f}s ({len(texto)} chars)")
 
             # Parsear respuesta para extraer nombre y descripción
             nombre = ""
@@ -66,11 +74,15 @@ Rules:
             if not nombre:
                 nombre = descripcion[:50] if descripcion else texto[:50]
 
+            log.info(f"Imagen procesada OK: '{nombre}'")
             return {"nombre": nombre, "descripcion": descripcion}
         except Exception as e:
+            log.warning(f"Error en intento {intento + 1}/{reintentos}: {str(e)}")
             if "429" in str(e) and intento < reintentos - 1:
+                log.info("Esperando 4s antes de reintentar...")
                 time.sleep(4)
                 continue
+            log.error(f"Error definitivo: {str(e)}")
             return {"nombre": "error", "descripcion": f"Error al procesar: {str(e)}"}
 
     return {"nombre": "error", "descripcion": "Error: No se pudo procesar después de varios intentos"}
