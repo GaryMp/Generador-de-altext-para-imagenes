@@ -375,5 +375,6 @@ CSS_WCAG = """
             padding: 8px !important;
         }
     }
+
 </style>
 """

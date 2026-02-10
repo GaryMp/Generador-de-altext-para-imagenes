@@ -31,6 +31,9 @@ env/
 # Secrets (API keys)
 .streamlit/secrets.toml
 
+# Claude Code
+.claude/
+
 # Sistema
 .DS_Store
 Thumbs.db
