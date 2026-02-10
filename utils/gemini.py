@@ -16,7 +16,7 @@ if GEMINI_API_KEY:
 @st.cache_resource
 def obtener_modelo_gemini():
     """Cachea el modelo Gemini para reutilizarlo"""
-    return genai.GenerativeModel('gemini-2.0-flash')
+    return genai.GenerativeModel('gemini-2.5-flash-lite')
 
 
 def describir_imagen(imagen, idioma="es", reintentos=2):

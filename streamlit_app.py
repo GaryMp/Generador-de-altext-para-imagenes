@@ -174,7 +174,7 @@ if archivos and st.session_state.procesando_indice >= 0:
 
         try:
             # Delay para rate limit
-            time.sleep(4 if idx > 0 else 1)
+            time.sleep(1)
 
             idioma_codigo = "es" if usar_espanol else "en"
             archivo = archivos[idx]
