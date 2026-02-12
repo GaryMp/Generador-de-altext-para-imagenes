@@ -39,6 +39,27 @@ components.html("""
         window.frameElement.title = '';
         window.frameElement.style.display = 'none';
     }} catch(e) {}
+    // En móvil: corregir accesibilidad del file uploader
+    try {
+        var isMobile = window.parent.innerWidth <= 640;
+        if (isMobile) {
+            var doc = window.parent.document;
+            var fixUploader = function() {
+                var uploaders = doc.querySelectorAll('[data-testid="stFileUploader"] section');
+                uploaders.forEach(function(section) {
+                    section.setAttribute('role', 'presentation');
+                    section.removeAttribute('aria-label');
+                    var btn = section.querySelector('button');
+                    if (btn) {
+                        btn.setAttribute('role', 'button');
+                        btn.setAttribute('aria-label', 'Examinar archivos');
+                    }
+                });
+            };
+            fixUploader();
+            new MutationObserver(fixUploader).observe(doc.body, {childList: true, subtree: true});
+        }
+    } catch(e) {}
 })();
 </script>
 """, height=0)
