@@ -374,44 +374,6 @@ CSS_WCAG = """
             font-size: 0.9rem !important;
             padding: 8px !important;
         }
-
-        /* File uploader: ocultar drag & drop, dejar solo botón */
-        [data-testid="stFileUploader"] section {
-            border: none !important;
-            padding: 0 !important;
-            background: transparent !important;
-            min-height: auto !important;
-        }
-
-        /* Ocultar textos, iconos y separadores del drag & drop */
-        [data-testid="stFileUploader"] section span,
-        [data-testid="stFileUploader"] section small,
-        [data-testid="stFileUploader"] section p,
-        [data-testid="stFileUploader"] section svg,
-        [data-testid="stFileUploader"] section img {
-            display: none !important;
-        }
-
-        /* Mostrar solo el botón */
-        [data-testid="stFileUploader"] section button {
-            display: inline-flex !important;
-            width: 100% !important;
-            min-height: 44px !important;
-            font-size: 1rem !important;
-            background-color: #0056b3 !important;
-            color: #ffffff !important;
-            border: 2px solid #0056b3 !important;
-            border-radius: 4px !important;
-            padding: 0.75rem 1rem !important;
-            justify-content: center !important;
-        }
-
-        /* Texto dentro del botón debe ser visible */
-        [data-testid="stFileUploader"] section button span,
-        [data-testid="stFileUploader"] section button p {
-            display: inline !important;
-            color: #ffffff !important;
-        }
     }
 
 </style>
