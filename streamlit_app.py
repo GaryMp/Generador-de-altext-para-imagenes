@@ -58,6 +58,10 @@ if 'error_procesamiento' not in st.session_state:
     st.session_state.error_procesamiento = False
 if 'procesando_indice' not in st.session_state:
     st.session_state.procesando_indice = -1
+if 'foco_resultados' not in st.session_state:
+    st.session_state.foco_resultados = False
+if 'foco_subir' not in st.session_state:
+    st.session_state.foco_subir = False
 
 # Funciones de callback
 def marcar_descarga(nombre_archivo):
@@ -76,6 +80,7 @@ def limpiar_todo():
     st.session_state.procesando_indice = -1
     st.session_state.mensaje_alerta = "Resultados eliminados. Puedes subir nuevas imágenes."
     st.session_state.mostrar_visual = True
+    st.session_state.foco_subir = True
 
 def quitar_resultado(indice):
     st.session_state.resultados.pop(indice)
@@ -134,9 +139,91 @@ with st.expander("Opciones avanzadas"):
 usar_espanol = idioma == "Español"
 guardar_exif = metadatos == "Sí, guardar en EXIF"
 
+# CATEGORÍA DE ANÁLISIS
+if 'categoria_elegida' not in st.session_state:
+    st.session_state.categoria_elegida = "General"
+if 'categoria_cambio' not in st.session_state:
+    st.session_state.categoria_cambio = False
+
+def _seleccionar_cat(cat):
+    st.session_state.categoria_elegida = cat
+    st.session_state.categoria_cambio = True
+
+cat_actual = st.session_state.categoria_elegida
+opciones_cat = ["General", "Personas", "Vestuario", "Paisajes"]
+with st.expander(f"Categoría de análisis: {cat_actual}"):
+    for cat in opciones_cat:
+        es_seleccionada = cat == cat_actual
+        st.button(
+            f"✓ {cat}" if es_seleccionada else cat,
+            on_click=_seleccionar_cat,
+            args=(cat,),
+            use_container_width=True,
+            key=f"btn_cat_{cat.lower()}",
+            type="primary" if es_seleccionada else "secondary"
+        )
+categoria_codigo = cat_actual.lower()
+
+# Cerrar expander y mover foco después de seleccionar categoría
+if st.session_state.categoria_cambio:
+    st.session_state.categoria_cambio = False
+    components.html(f"""
+    <script>
+    // {time.time()}
+    (function() {{
+        try {{ if (window.frameElement) {{
+            window.frameElement.setAttribute('aria-hidden', 'true');
+            window.frameElement.tabIndex = -1;
+            window.frameElement.style.display = 'none';
+        }} }} catch(e) {{}}
+        function cerrarYEnfocar() {{
+            var doc = window.parent.document;
+            var expanders = doc.querySelectorAll('[data-testid="stExpander"]');
+            for (var i = 0; i < expanders.length; i++) {{
+                var summary = expanders[i].querySelector('summary');
+                if (summary && summary.textContent.indexOf('Categoría de análisis') !== -1) {{
+                    var details = expanders[i].querySelector('details');
+                    if (details) details.removeAttribute('open');
+                    setTimeout(function() {{ summary.focus(); }}, 100);
+                    break;
+                }}
+            }}
+        }}
+        setTimeout(cerrarYEnfocar, 300);
+    }})();
+    </script>
+    """, height=0)
+
 # SUBIR IMÁGENES
-st.markdown('<h2 id="subir-imagenes">Subir imágenes</h2>', unsafe_allow_html=True)
+st.markdown('<h2 id="subir-imagenes" tabindex="-1">Subir imágenes</h2>', unsafe_allow_html=True)
 st.markdown("Formatos: JPG, PNG, WEBP")
+
+# Mover foco a "Subir imágenes" después de limpiar resultados
+if st.session_state.foco_subir:
+    st.session_state.foco_subir = False
+    components.html(f"""
+    <script>
+    // {time.time()}
+    (function() {{
+        try {{ if (window.frameElement) {{
+            window.frameElement.setAttribute('aria-hidden', 'true');
+            window.frameElement.tabIndex = -1;
+            window.frameElement.style.display = 'none';
+        }} }} catch(e) {{}}
+        setTimeout(function() {{
+            var doc = window.parent.document;
+            var expanders = doc.querySelectorAll('[data-testid="stExpander"] summary');
+            for (var i = 0; i < expanders.length; i++) {{
+                if (expanders[i].textContent.indexOf('Categoría de análisis') !== -1) {{
+                    expanders[i].blur();
+                    setTimeout(function() {{ expanders[i].focus(); }}, 200);
+                    break;
+                }}
+            }}
+        }}, 1900);
+    }})();
+    </script>
+    """, height=0)
 
 archivos = st.file_uploader(
     "Examinar archivos",
@@ -182,7 +269,7 @@ if archivos and st.session_state.procesando_indice >= 0:
             if imagen.mode != 'RGB':
                 imagen = imagen.convert('RGB')
 
-            resultado = describir_imagen(imagen, idioma_codigo)
+            resultado = describir_imagen(imagen, idioma_codigo, categoria_codigo)
 
             nombre_nuevo = f"{limpiar_nombre(resultado['nombre'])}.jpg"
             descripcion = resultado['descripcion']
@@ -210,6 +297,7 @@ if archivos and st.session_state.procesando_indice >= 0:
                 actualizar_contadores(imagenes=total)
                 st.session_state.mensaje_alerta = f"Listo. {total} {'imagen procesada' if total == 1 else 'imágenes procesadas'}. Ya puedes descargar los resultados."
                 st.session_state.mostrar_visual = True
+                st.session_state.foco_resultados = True
 
             st.rerun()
 
@@ -229,7 +317,30 @@ if archivos and st.session_state.procesando_indice >= 0:
 # RESULTADOS (solo cuando terminó el procesamiento)
 if st.session_state.resultados and st.session_state.procesando_indice < 0:
     st.markdown("---")
-    st.markdown("## Resultados")
+    st.markdown('<h2 id="resultados" tabindex="-1">Resultados</h2>', unsafe_allow_html=True)
+
+    # Mover foco al encabezado Resultados al terminar el procesamiento
+    if st.session_state.foco_resultados:
+        st.session_state.foco_resultados = False
+        components.html(f"""
+        <script>
+        // {time.time()}
+        (function() {{
+            try {{ if (window.frameElement) {{
+                window.frameElement.setAttribute('aria-hidden', 'true');
+                window.frameElement.tabIndex = -1;
+                window.frameElement.style.display = 'none';
+            }} }} catch(e) {{}}
+            setTimeout(function() {{
+                var h2 = window.parent.document.getElementById('resultados');
+                if (h2) {{
+                    h2.blur();
+                    setTimeout(function() {{ h2.focus(); }}, 200);
+                }}
+            }}, 2200);
+        }})();
+        </script>
+        """, height=0)
 
     # Resultados individuales
     for i, r in enumerate(st.session_state.resultados):
@@ -267,7 +378,7 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
             )
         with col2:
             nombre_corto = r['nombre'][:20] + "..." if len(r['nombre']) > 23 else r['nombre']
-            if st.button(f"Quitar: {nombre_corto}", key=f"rm_{i}", use_container_width=True, on_click=quitar_resultado, args=(i,)):
+            if st.button(f"Quitar: {nombre_corto}", key=f"rm_{i}", use_container_width=True, type="secondary", on_click=quitar_resultado, args=(i,)):
                 st.rerun()
 
         if i < len(st.session_state.resultados) - 1:
@@ -306,10 +417,10 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
                 on_click=marcar_descarga_zip
             )
         with col2:
-            if st.button("Limpiar todo", use_container_width=True, on_click=limpiar_todo):
+            if st.button("Limpiar todo", use_container_width=True, type="secondary", on_click=limpiar_todo):
                 st.rerun()
     else:
-        if st.button("Limpiar y procesar nuevas imágenes", use_container_width=True, on_click=limpiar_todo):
+        if st.button("Limpiar y procesar nuevas imágenes", use_container_width=True, type="secondary", on_click=limpiar_todo):
             st.rerun()
 
 # Footer con contadores

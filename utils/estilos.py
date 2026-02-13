@@ -187,6 +187,29 @@ CSS_WCAG = """
         box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #0056b3 !important;
     }
 
+    /* Botones secundarios (outline) */
+    .stButton > button[kind="secondary"] {
+        background-color: #ffffff !important;
+        color: #c0392b !important;
+        border: 2px solid #c0392b !important;
+    }
+
+    .stButton > button[kind="secondary"]:hover {
+        background-color: #fdf2f2 !important;
+    }
+
+    /* Botones de categoría dentro del expander (secondary = no seleccionada) */
+    [data-testid="stExpander"] .stButton > button[kind="secondary"] {
+        color: #0056b3 !important;
+        border: 2px solid #ccc !important;
+        background-color: #f8f9fa !important;
+    }
+
+    [data-testid="stExpander"] .stButton > button[kind="secondary"]:hover {
+        background-color: #e8f0fe !important;
+        border-color: #0056b3 !important;
+    }
+
     /* Barra de progreso */
     .stProgress > div {
         background-color: #ffffff !important;
@@ -250,7 +273,7 @@ CSS_WCAG = """
 
     /* Estilo para título con colores rasta */
     .rasta-title .gary-g { color: #228B22; }
-    .rasta-title .gary-a { color: #B8860B; }
+    .rasta-title .gary-a { color: #8B6914; }
     .rasta-title .gary-r { color: #DC143C; }
     .rasta-title .gary-y { color: #228B22; }
 
