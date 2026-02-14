@@ -338,7 +338,7 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
                     h2.blur();
                     setTimeout(function() {{ h2.focus(); }}, 200);
                 }}
-            }}, 4600);
+            }}, 4900);
         }})();
         </script>
         """, height=0)
