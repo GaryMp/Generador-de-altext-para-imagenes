@@ -122,6 +122,7 @@ if st.session_state.mensaje_alerta:
     if visual:
         st.success(mensaje_mostrar)
 
+
 # OPCIONES AVANZADAS (colapsadas por defecto)
 with st.expander("Opciones avanzadas"):
     idioma = st.selectbox(
@@ -295,7 +296,7 @@ if archivos and st.session_state.procesando_indice >= 0:
                 # Todas procesadas
                 st.session_state.procesando_indice = -1
                 actualizar_contadores(imagenes=total)
-                st.session_state.mensaje_alerta = f"Listo. {total} {'imagen procesada' if total == 1 else 'imágenes procesadas'}. Ya puedes descargar los resultados."
+                st.session_state.mensaje_alerta = f"Listo. {total} {'imagen procesada' if total == 1 else 'imágenes procesadas'}. Ya puedes descargar los resultados. Recuerda, la IA puede cometer errores, no te fíes completamente de los resultados."
                 st.session_state.mostrar_visual = True
                 st.session_state.foco_resultados = True
 
