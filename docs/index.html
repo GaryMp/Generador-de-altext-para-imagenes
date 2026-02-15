@@ -330,6 +330,41 @@
             text-decoration: underline;
         }
 
+        /* Videos */
+        .videos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .video-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .video-card iframe {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: none;
+            display: block;
+        }
+
+        .video-card .video-info {
+            padding: 16px;
+        }
+
+        .video-card h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .video-card p {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
         @media (max-width: 600px) {
             .logo { font-size: 2rem; }
             header { padding: 60px 16px 32px; }
@@ -337,6 +372,7 @@
             section { padding: 36px 16px; }
             .features { grid-template-columns: 1fr; }
             .categorias { grid-template-columns: 1fr 1fr; }
+            .videos { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -433,6 +469,26 @@
                 <div class="step-text">
                     <h3>Descarga y usa</h3>
                     <p>Copia el texto o descarga las imágenes con el alt text incrustado en los metadatos EXIF.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="videos-titulo">
+        <h2 id="videos-titulo">Mira cómo funciona</h2>
+        <div class="videos">
+            <div class="video-card">
+                <iframe src="https://www.youtube.com/embed/sBb3rqzI3yI" title="Tutorial de GaryText Pro con lector de pantalla" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div class="video-info">
+                    <h3>Tutorial con lector de pantalla</h3>
+                    <p>Aprende a usar GaryText Pro con NVDA, JAWS o TalkBack.</p>
+                </div>
+            </div>
+            <div class="video-card">
+                <iframe src="https://www.youtube.com/embed/b9Me5LFimlY" title="Categorías de análisis en GaryText Pro" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div class="video-info">
+                    <h3>Categorías de análisis</h3>
+                    <p>General, Personas, Vestuario y Paisajes: descripciones especializadas para cada tipo de imagen.</p>
                 </div>
             </div>
         </div>
