@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GaryText Pro - Generador de Textos Alternativos Gratis con IA</title>
+    <meta name="description" content="Genera textos alternativos (alt text) para tus imágenes gratis con inteligencia artificial. Mejora la accesibilidad web y el SEO de tu sitio. WCAG 2.2 AA.">
+    <meta name="keywords" content="generador texto alternativo, alt text gratis, texto alternativo imagenes, accesibilidad web, WCAG, alt text IA, descripcion imagenes automatica">
+    <meta name="author" content="GaryText Pro">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://garymp.github.io/Generador-de-altext-para-imagenes/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="GaryText Pro - Generador de Textos Alternativos Gratis">
+    <meta property="og:description" content="Genera alt text para tus imágenes gratis con IA. Mejora accesibilidad y SEO.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://garymp.github.io/Generador-de-altext-para-imagenes/">
+    <meta property="og:locale" content="es_ES">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GaryText Pro - Generador de Textos Alternativos Gratis">
+    <meta name="twitter:description" content="Genera alt text para tus imágenes gratis con IA. Accesibilidad WCAG 2.2 AA.">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "GaryText Pro",
+        "description": "Generador gratuito de textos alternativos para imágenes usando inteligencia artificial. Compatible con WCAG 2.2 AA.",
+        "url": "https://garymp.github.io/Generador-de-altext-para-imagenes/",
+        "applicationCategory": "Accessibility Tool",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "Generación automática de alt text con IA",
+            "4 categorías de análisis: General, Personas, Vestuario, Paisajes",
+            "Soporte español e inglés",
+            "Descarga con metadatos EXIF",
+            "Accesible WCAG 2.2 AA"
+        ]
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1a1a1a;
+            background: #ffffff;
+            line-height: 1.6;
+        }
+
+        /* Barra rasta superior */
+        .rasta-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #228B22 33%, #8B6914 33% 66%, #DC143C 66%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        header {
+            text-align: center;
+            padding: 80px 20px 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .logo .gary { color: #1a1a1a; }
+        .logo .text { color: #228B22; }
+        .logo .pro { color: #8B6914; }
+
+        header p.tagline {
+            font-size: 1.25rem;
+            color: #444;
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #228B22;
+            color: #fff;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .cta-button:hover {
+            background: #1a6e1a;
+            transform: translateY(-2px);
+        }
+
+        .cta-button:focus-visible {
+            outline: 3px solid #0056b3;
+            outline-offset: 3px;
+        }
+
+        /* Secciones */
+        section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 48px 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 24px;
+            color: #1a1a1a;
+            text-align: center;
+        }
+
+        .separator {
+            height: 3px;
+            background: linear-gradient(90deg, #228B22, #8B6914, #DC143C);
+            border: none;
+            max-width: 200px;
+            margin: 0 auto 48px;
+            border-radius: 2px;
+        }
+
+        /* Que es */
+        .que-es {
+            text-align: center;
+            font-size: 1.05rem;
+            color: #333;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-top: 8px;
+        }
+
+        .feature {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .feature .icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .feature h3 {
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        .feature p {
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        /* Como funciona */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .step-number {
+            background: #228B22;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-text h3 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .step-text p {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        /* Categorias */
+        .categorias {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .categoria {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .categoria h3 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .categoria p {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .categoria:nth-child(1) { border-color: #228B22; }
+        .categoria:nth-child(2) { border-color: #8B6914; }
+        .categoria:nth-child(3) { border-color: #DC143C; }
+        .categoria:nth-child(4) { border-color: #0056b3; }
+
+        /* CTA final */
+        .cta-final {
+            text-align: center;
+            padding: 48px 20px 32px;
+        }
+
+        .cta-final p {
+            font-size: 1.1rem;
+            color: #444;
+            margin-bottom: 24px;
+        }
+
+        /* FAQ */
+        .faq {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .faq details {
+            border-bottom: 1px solid #e9ecef;
+            padding: 16px 0;
+        }
+
+        .faq summary {
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq summary::after {
+            content: "+";
+            font-size: 1.3rem;
+            color: #228B22;
+            font-weight: 700;
+        }
+
+        .faq details[open] summary::after {
+            content: "-";
+        }
+
+        .faq summary::-webkit-details-marker { display: none; }
+
+        .faq p {
+            margin-top: 10px;
+            color: #444;
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            border-top: 3px solid;
+            border-image: linear-gradient(90deg, #228B22, #8B6914, #DC143C) 1;
+            margin-top: 32px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #228B22;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .logo { font-size: 2rem; }
+            header { padding: 60px 16px 32px; }
+            header p.tagline { font-size: 1.1rem; }
+            section { padding: 36px 16px; }
+            .features { grid-template-columns: 1fr; }
+            .categorias { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="rasta-bar" role="presentation"></div>
+
+    <header>
+        <div class="logo">
+            <span class="gary">Gary</span><span class="text">Text</span>
+            <span class="pro">Pro</span>
+        </div>
+        <h1>Generador de textos alternativos gratis con IA</h1>
+        <p class="tagline">Sube tus imágenes y obtén descripciones accesibles al instante. Sin registro, sin límites, sin costo.</p>
+        <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button">
+            Generar alt text gratis
+        </a>
+    </header>
+
+    <hr class="separator">
+
+    <section aria-labelledby="que-es-titulo">
+        <h2 id="que-es-titulo">¿Qué es el texto alternativo?</h2>
+        <p class="que-es">
+            El texto alternativo (alt text) es una descripción de una imagen que permite a personas con discapacidad visual
+            entender su contenido mediante lectores de pantalla. También ayuda a los motores de búsqueda
+            a entender tus imágenes, mejorando el <strong>SEO</strong> de tu sitio web.
+        </p>
+    </section>
+
+    <section aria-labelledby="features-titulo">
+        <h2 id="features-titulo">¿Por qué usar GaryText Pro?</h2>
+        <div class="features">
+            <div class="feature">
+                <div class="icon" role="presentation">&#9889;</div>
+                <h3>Rápido e inteligente</h3>
+                <p>Inteligencia artificial analiza tus imágenes y genera descripciones precisas en segundos.</p>
+            </div>
+            <div class="feature">
+                <div class="icon" role="presentation">&#127760;</div>
+                <h3>Español e inglés</h3>
+                <p>Genera textos alternativos en ambos idiomas con un solo clic.</p>
+            </div>
+            <div class="feature">
+                <div class="icon" role="presentation">&#9854;</div>
+                <h3>Accesible WCAG 2.2</h3>
+                <p>La propia herramienta cumple estándares de accesibilidad AA. Hecha para todos.</p>
+            </div>
+            <div class="feature">
+                <div class="icon" role="presentation">&#128247;</div>
+                <h3>Metadatos EXIF</h3>
+                <p>Descarga tus imágenes con el alt text incrustado en los metadatos.</p>
+            </div>
+            <div class="feature">
+                <div class="icon" role="presentation">&#128176;</div>
+                <h3>100% gratis</h3>
+                <p>Sin registro, sin límites de uso, sin marcas de agua. Completamente gratuito.</p>
+            </div>
+            <div class="feature">
+                <div class="icon" role="presentation">&#128230;</div>
+                <h3>Descarga en lote</h3>
+                <p>Procesa varias imágenes a la vez y descárgalas todas en un ZIP.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="separator">
+
+    <section aria-labelledby="como-titulo">
+        <h2 id="como-titulo">¿Cómo funciona?</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    <h3>Sube tus imágenes</h3>
+                    <p>Arrastra o selecciona hasta varias imágenes (JPG, PNG, WebP).</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    <h3>Elige una categoría</h3>
+                    <p>General, Personas, Vestuario o Paisajes. Cada una genera descripciones especializadas.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    <h3>Obtén tus alt texts</h3>
+                    <p>La IA analiza cada imagen y genera texto alternativo en español e inglés.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    <h3>Descarga y usa</h3>
+                    <p>Copia el texto o descarga las imágenes con el alt text incrustado en los metadatos EXIF.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="categorias-titulo">
+        <h2 id="categorias-titulo">Categorías de análisis</h2>
+        <div class="categorias">
+            <div class="categoria">
+                <h3>General</h3>
+                <p>Descripción genérica de la imagen en 15-25 palabras.</p>
+            </div>
+            <div class="categoria">
+                <h3>Personas</h3>
+                <p>Género, edad, rasgos físicos y contexto de las personas.</p>
+            </div>
+            <div class="categoria">
+                <h3>Vestuario</h3>
+                <p>Prendas, colores, texturas, marcas y accesorios.</p>
+            </div>
+            <div class="categoria">
+                <h3>Paisajes</h3>
+                <p>Elementos naturales, clima, colores y ambiente.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="separator">
+
+    <section aria-labelledby="faq-titulo">
+        <h2 id="faq-titulo">Preguntas frecuentes</h2>
+        <div class="faq">
+            <details>
+                <summary>¿Necesito crear una cuenta?</summary>
+                <p>No. GaryText Pro es completamente gratuito y no requiere registro ni inicio de sesión.</p>
+            </details>
+            <details>
+                <summary>¿Qué formatos de imagen acepta?</summary>
+                <p>Acepta JPG, JPEG, PNG y WebP. Puedes subir varias imágenes a la vez.</p>
+            </details>
+            <details>
+                <summary>¿Mis imágenes se almacenan en algún servidor?</summary>
+                <p>No. Las imágenes se procesan en el momento y no se guardan en ningún servidor después del análisis.</p>
+            </details>
+            <details>
+                <summary>¿Qué tan preciso es el texto alternativo generado?</summary>
+                <p>La IA genera descripciones muy precisas, pero siempre es recomendable revisar y ajustar el resultado según el contexto de uso.</p>
+            </details>
+            <details>
+                <summary>¿Puedo usar los textos generados en mi sitio web?</summary>
+                <p>Sí. Los textos generados son tuyos y puedes usarlos libremente en tu sitio web, redes sociales o cualquier proyecto.</p>
+            </details>
+            <details>
+                <summary>¿Para qué sirve el texto alternativo en SEO?</summary>
+                <p>Google y otros buscadores usan el alt text para entender el contenido de las imágenes. Un buen texto alternativo mejora el posicionamiento de tu sitio en Google Imágenes y en resultados de búsqueda general.</p>
+            </details>
+        </div>
+    </section>
+
+    <div class="cta-final">
+        <p>Mejora la accesibilidad y el SEO de tu sitio web hoy mismo.</p>
+        <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button">
+            Empezar gratis
+        </a>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 GaryText Pro. Herramienta gratuita de accesibilidad web.</p>
+        <p style="margin-top: 8px;">
+            <a href="https://github.com/GaryMp/Generador-de-altext-para-imagenes">GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>
