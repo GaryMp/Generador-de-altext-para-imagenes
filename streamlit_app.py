@@ -424,13 +424,43 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
         if st.button("Limpiar y procesar nuevas imágenes", use_container_width=True, type="secondary", on_click=limpiar_todo):
             st.rerun()
 
+    # Banner consultoría
+    st.markdown("""
+<div style="
+    margin: 1.5rem 0 0.5rem 0;
+    padding: 1rem 1.25rem;
+    background: #f0f7ff;
+    border-left: 4px solid #0056b3;
+    border-radius: 0 8px 8px 0;
+">
+    <p style="margin: 0 0 0.4rem 0; font-weight: bold; color: #1a1a1a; font-size: 1rem;">
+        ¿Tu sitio web necesita una auditoría de accesibilidad?
+    </p>
+    <p style="margin: 0 0 0.7rem 0; color: #333; font-size: 0.92rem; line-height: 1.5;">
+        El alt text es solo el comienzo. Ofrezco auditorías WCAG 2.2, testing manual con NVDA, JAWS y VoiceOver, y revisión de código.
+    </p>
+    <a href="https://digitalaccessibility.cl"
+       target="_blank"
+       rel="noopener noreferrer"
+       style="color: #0056b3; font-weight: bold; text-decoration: underline; font-size: 0.95rem;">
+        Ver servicios en digitalaccessibility.cl
+        <span class="sr-only"> (se abre en nueva pestaña)</span>
+    </a>
+</div>
+""", unsafe_allow_html=True)
+
 # Footer con contadores
 st.markdown(f"""
 <div class="rasta-footer">
     <p style="margin-bottom: 0.3rem; font-size: 0.85rem;">
         <span aria-hidden="true">👁️</span> {contadores.get('visitas', 0):,} visitas · <span aria-hidden="true">📊</span> {contadores.get('imagenes', 0):,} imágenes analizadas
     </p>
-    <p style="margin-bottom: 0.5rem;">GaryText Pro v0.1 - Por Gary Dev</p>
+    <p style="margin-bottom: 0.3rem;">GaryText Pro v0.1 · Por
+        <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer"
+           style="color: #e8e8e8; text-decoration: underline;">Gary · Consultor en Accesibilidad Web
+            <span class="sr-only"> (se abre en nueva pestaña)</span>
+        </a>
+    </p>
     <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">
         Si te ha parecido útil esta aplicación, no dudes en donarme un café
     </p>

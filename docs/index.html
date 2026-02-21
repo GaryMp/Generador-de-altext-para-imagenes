@@ -365,6 +365,64 @@
             color: #555;
         }
 
+        /* Consultoría */
+        .consultoria-box {
+            background: #f0f7ff;
+            border-left: 4px solid #0056b3;
+            border-radius: 0 12px 12px 0;
+            padding: 32px 32px;
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .consultoria-box h2 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        .consultoria-box p {
+            color: #444;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .consultoria-link {
+            display: inline-block;
+            color: #0056b3;
+            font-weight: 600;
+            text-decoration: none;
+            border: 2px solid #0056b3;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .consultoria-link:hover {
+            background: #0056b3;
+            color: #fff;
+        }
+
+        .consultoria-link:focus-visible {
+            outline: 3px solid #0056b3;
+            outline-offset: 3px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         @media (max-width: 600px) {
             .logo { font-size: 2rem; }
             header { padding: 60px 16px 32px; }
@@ -548,6 +606,26 @@
         </div>
     </section>
 
+    <section aria-labelledby="consultoria-titulo">
+        <div class="consultoria-box">
+            <h2 id="consultoria-titulo">¿Necesitas más que alt text?</h2>
+            <p>
+                El texto alternativo es solo el comienzo de la accesibilidad web. Si tu sitio necesita una
+                <strong>auditoría WCAG 2.2</strong>, testing manual con NVDA, JAWS, VoiceOver o TalkBack,
+                o revisión de código con perspectiva real de usuario con discapacidad visual, puedo ayudarte.
+            </p>
+            <a href="https://digitalaccessibility.cl"
+               class="consultoria-link"
+               target="_blank"
+               rel="noopener noreferrer">
+                Ver servicios de consultoría
+                <span class="sr-only"> (se abre en nueva pestaña)</span>
+            </a>
+        </div>
+    </section>
+
+    <hr class="separator">
+
     <div class="cta-final">
         <p>Mejora la accesibilidad y el SEO de tu sitio web hoy mismo.</p>
         <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button">
@@ -556,7 +634,12 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 GaryText Pro. Herramienta gratuita de accesibilidad web.</p>
+        <p>&copy; 2026 GaryText Pro · Una herramienta de
+            <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer">
+                Gary · Consultor en Accesibilidad Web
+                <span class="sr-only"> (se abre en nueva pestaña)</span>
+            </a>
+        </p>
         <p style="margin-top: 8px;">
             <a href="https://github.com/GaryMp/Generador-de-altext-para-imagenes">GitHub</a>
         </p>
