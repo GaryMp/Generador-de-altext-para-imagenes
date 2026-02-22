@@ -261,8 +261,9 @@ if archivos and st.session_state.procesando_indice >= 0:
         st.progress(idx / total, text=f"Procesando imagen {idx + 1} de {total}...")
 
         try:
-            # Delay para rate limit
-            time.sleep(1)
+            # Delay para rate limit (solo entre imágenes, no antes de la primera)
+            if idx > 0:
+                time.sleep(1)
 
             idioma_codigo = "es" if usar_espanol else "en"
             archivo = archivos[idx]
