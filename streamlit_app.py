@@ -332,13 +332,17 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
                 window.frameElement.tabIndex = -1;
                 window.frameElement.style.display = 'none';
             }} }} catch(e) {{}}
-            setTimeout(function() {{
+            var intentos = 0;
+            var timer = setInterval(function() {{
                 var h2 = window.parent.document.getElementById('resultados');
                 if (h2) {{
+                    clearInterval(timer);
                     h2.blur();
-                    setTimeout(function() {{ h2.focus(); }}, 200);
+                    setTimeout(function() {{ h2.focus(); }}, 100);
+                }} else if (++intentos >= 25) {{
+                    clearInterval(timer);
                 }}
-            }}, 4900);
+            }}, 200);
         }})();
         </script>
         """, height=0)
