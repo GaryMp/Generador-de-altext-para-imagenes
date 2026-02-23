@@ -514,7 +514,8 @@
         </div>
         <h1>Generador de textos alternativos gratis con IA</h1>
         <p class="tagline">Sube tus imágenes y obtén descripciones accesibles al instante. Sin registro, sin límites, sin costo.</p>
-        <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button">
+        <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button"
+           onclick="gtag('event', 'app_click', {location: 'hero'})">
             Generar alt text gratis
         </a>
     </header>
@@ -689,7 +690,8 @@
             <a href="https://digitalaccessibility.cl?utm_source=garytext&utm_medium=referral&utm_campaign=consultoria_banner"
                class="consultoria-link"
                target="_blank"
-               rel="noopener noreferrer">
+               rel="noopener noreferrer"
+               onclick="gtag('event', 'consultoria_click', {location: 'section'})">
                 Ver servicios de consultoría
                 <span class="sr-only"> (se abre en nueva pestaña)</span>
             </a>
@@ -700,7 +702,8 @@
 
     <div class="cta-final">
         <p>Mejora la accesibilidad y el SEO de tu sitio web hoy mismo.</p>
-        <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button">
+        <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button"
+           onclick="gtag('event', 'app_click', {location: 'cta_final'})">
             Empezar gratis
         </a>
     </div>
@@ -709,14 +712,28 @@
 
     <footer>
         <p>&copy; 2026 GaryText Pro · Una herramienta de
-            <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer">
+            <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer"
+               onclick="gtag('event', 'footer_link_click', {location: 'footer_consultoria'})">
                 Gary · Consultor en Accesibilidad Web
                 <span class="sr-only"> (se abre en nueva pestaña)</span>
             </a>
         </p>
         <p style="margin-top: 8px;">
-            <a href="https://github.com/GaryMp/Generador-de-altext-para-imagenes">GitHub</a>
+            <a href="https://github.com/GaryMp/Generador-de-altext-para-imagenes"
+               onclick="gtag('event', 'footer_link_click', {location: 'footer_github'})">GitHub</a>
         </p>
     </footer>
+
+    <script>
+        document.querySelectorAll('.faq details').forEach(function(detail) {
+            detail.addEventListener('toggle', function() {
+                if (this.open) {
+                    gtag('event', 'faq_open', {
+                        question: this.querySelector('summary').textContent.trim()
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
