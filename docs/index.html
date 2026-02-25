@@ -7,12 +7,13 @@
     <title>GaryText Pro - Generador de Textos Alternativos Gratis con IA</title>
     <meta name="description" content="Genera textos alternativos (alt text) para tus imágenes gratis con inteligencia artificial. Mejora la accesibilidad web y el SEO de tu sitio. WCAG 2.2 AA.">
     <meta name="keywords" content="generador texto alternativo, alt text gratis, texto alternativo imagenes, accesibilidad web, WCAG, alt text IA, descripcion imagenes automatica">
-    <meta name="author" content="GaryText Pro">
+    <meta name="author" content="Gary Muñoz Peña">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://descubrir.digitalaccessibility.cl/">
+    <link rel="alternate" hreflang="es-CL" href="https://descubrir.digitalaccessibility.cl/">
 
     <!-- Google Analytics GA4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9S47BNHFHZ"></script>
+    <script async fetchpriority="low" src="https://www.googletagmanager.com/gtag/js?id=G-9S47BNHFHZ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -25,7 +26,8 @@
     <meta property="og:description" content="Genera alt text para tus imágenes gratis con IA. Mejora accesibilidad y SEO.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://descubrir.digitalaccessibility.cl/">
-    <meta property="og:locale" content="es_ES">
+    <meta property="og:locale" content="es_CL">
+    <meta property="og:site_name" content="GaryText Pro">
     <meta property="og:image" content="https://descubrir.digitalaccessibility.cl/og-image.png">
 
     <!-- Twitter Card -->
@@ -34,86 +36,87 @@
     <meta name="twitter:description" content="Genera alt text para tus imágenes gratis con IA. Accesibilidad WCAG 2.2 AA.">
     <meta name="twitter:image" content="https://descubrir.digitalaccessibility.cl/og-image.png">
 
-    <!-- JSON-LD Structured Data -->
+    <!-- SoftwareApplication Schema -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "WebApplication",
+        "@type": "SoftwareApplication",
         "name": "GaryText Pro",
-        "description": "Generador gratuito de textos alternativos para imágenes usando inteligencia artificial. Compatible con WCAG 2.2 AA.",
+        "description": "Generador gratuito de textos alternativos para imágenes usando inteligencia artificial (Google Gemini). Compatible con WCAG 2.2 AA. Sin registro, sin límites, sin costo.",
         "url": "https://descubrir.digitalaccessibility.cl/",
-        "applicationCategory": "Accessibility Tool",
+        "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Web",
+        "inLanguage": ["es", "en"],
+        "screenshot": "https://descubrir.digitalaccessibility.cl/og-image.png",
+        "featureList": "Generación automática de alt text con IA (Google Gemini), Análisis en 4 categorías: General, Personas, Vestuario y Paisajes, Soporte español e inglés, Descarga con metadatos EXIF, Accesible WCAG 2.2 AA, Sin registro requerido, Procesamiento sin almacenamiento de imágenes, Descarga en lote ZIP",
         "offers": {
             "@type": "Offer",
             "price": "0",
-            "priceCurrency": "USD"
+            "priceCurrency": "CLP",
+            "availability": "https://schema.org/OnlineOnly",
+            "url": "https://descubrir.digitalaccessibility.cl/"
         },
-        "featureList": [
-            "Generación automática de alt text con IA",
-            "4 categorías de análisis: General, Personas, Vestuario, Paisajes",
-            "Soporte español e inglés",
-            "Descarga con metadatos EXIF",
-            "Accesible WCAG 2.2 AA"
+        "creator": {
+            "@type": "Person",
+            "name": "Gary Muñoz Peña",
+            "url": "https://digitalaccessibility.cl",
+            "sameAs": "https://www.linkedin.com/in/gary-mu%C3%B1oz-pe%C3%B1a"
+        },
+        "datePublished": "2026-02-01",
+        "softwareVersion": "1.0"
+    }
+    </script>
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Digital Accessibility",
+        "alternateName": "Gary Muñoz Peña · Consultor en Accesibilidad Web",
+        "url": "https://digitalaccessibility.cl",
+        "sameAs": [
+            "https://www.linkedin.com/in/gary-mu%C3%B1oz-pe%C3%B1a",
+            "https://github.com/GaryMp"
         ]
     }
     </script>
 
-    <!-- FAQ Schema para rich snippets en Google -->
+    <!-- VideoObject Schema: Tutorial con lector de pantalla -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-            {
-                "@type": "Question",
-                "name": "¿Necesito crear una cuenta?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "No. GaryText Pro es completamente gratuito y no requiere registro ni inicio de sesión."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Qué formatos de imagen acepta?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Acepta JPG, JPEG, PNG y WebP. Puedes subir varias imágenes a la vez."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Mis imágenes se almacenan en algún servidor?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "No. Las imágenes se procesan en el momento y no se guardan en ningún servidor después del análisis."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Qué tan preciso es el texto alternativo generado?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "La IA genera descripciones muy precisas, pero siempre es recomendable revisar y ajustar el resultado según el contexto de uso."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Puedo usar los textos generados en mi sitio web?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sí. Los textos generados son tuyos y puedes usarlos libremente en tu sitio web, redes sociales o cualquier proyecto."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "¿Para qué sirve el texto alternativo en SEO?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Google y otros buscadores usan el alt text para entender el contenido de las imágenes. Un buen texto alternativo mejora el posicionamiento de tu sitio en Google Imágenes y en resultados de búsqueda general."
-                }
-            }
-        ]
+        "@type": "VideoObject",
+        "name": "Tutorial de GaryText Pro con lector de pantalla",
+        "description": "Aprende a usar GaryText Pro con NVDA, JAWS o TalkBack para generar textos alternativos accesibles con inteligencia artificial.",
+        "thumbnailUrl": "https://img.youtube.com/vi/sBb3rqzI3yI/maxresdefault.jpg",
+        "uploadDate": "2026-02-01",
+        "embedUrl": "https://www.youtube.com/embed/sBb3rqzI3yI",
+        "url": "https://www.youtube.com/watch?v=sBb3rqzI3yI",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Digital Accessibility",
+            "url": "https://digitalaccessibility.cl"
+        }
+    }
+    </script>
+
+    <!-- VideoObject Schema: Categorías de análisis -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": "Categorías de análisis en GaryText Pro",
+        "description": "General, Personas, Vestuario y Paisajes: descripciones especializadas para cada tipo de imagen, generadas con IA.",
+        "thumbnailUrl": "https://img.youtube.com/vi/b9Me5LFimlY/maxresdefault.jpg",
+        "uploadDate": "2026-02-01",
+        "embedUrl": "https://www.youtube.com/embed/b9Me5LFimlY",
+        "url": "https://www.youtube.com/watch?v=b9Me5LFimlY",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Digital Accessibility",
+            "url": "https://digitalaccessibility.cl"
+        }
     }
     </script>
 
@@ -133,7 +136,8 @@
 
         /* Barra rasta superior */
         .rasta-bar {
-            height: 4px;
+            height: calc(4px + env(safe-area-inset-top, 0px));
+            padding-top: env(safe-area-inset-top, 0px);
             background: linear-gradient(90deg, #228B22 33%, #8B6914 33% 66%, #DC143C 66%);
             position: fixed;
             top: 0;
@@ -227,6 +231,23 @@
             color: #333;
             max-width: 650px;
             margin: 0 auto;
+        }
+
+        .que-es p + p {
+            margin-top: 16px;
+        }
+
+        .que-es a {
+            color: #228B22;
+            text-decoration: underline;
+        }
+
+        .que-es code {
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: monospace;
         }
 
         /* Features */
@@ -394,6 +415,10 @@
         footer a {
             color: #228B22;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 4px 2px;
         }
 
         footer a:hover {
@@ -514,9 +539,13 @@
         </div>
         <h1>Generador de textos alternativos gratis con IA</h1>
         <p class="tagline">Sube tus imágenes y obtén descripciones accesibles al instante. Sin registro, sin límites, sin costo.</p>
-        <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button"
+        <a href="https://generador-de-altext-para-imagenes.streamlit.app/"
+           class="cta-button"
+           target="_blank"
+           rel="noopener noreferrer"
            onclick="gtag('event', 'app_click', {location: 'hero'})">
             Generar alt text gratis
+            <span class="sr-only"> (se abre en nueva pestaña)</span>
         </a>
     </header>
 
@@ -526,11 +555,22 @@
 
     <section aria-labelledby="que-es-titulo">
         <h2 id="que-es-titulo">¿Qué es el texto alternativo?</h2>
-        <p class="que-es">
-            El texto alternativo (alt text) es una descripción de una imagen que permite a personas con discapacidad visual
-            entender su contenido mediante lectores de pantalla. También ayuda a los motores de búsqueda
-            a entender tus imágenes, mejorando el <strong>SEO</strong> de tu sitio web.
-        </p>
+        <div class="que-es">
+            <p>
+                El texto alternativo (alt text) es una descripción de una imagen requerida por el
+                <a href="https://www.w3.org/TR/WCAG22/#non-text-content" rel="noopener noreferrer" target="_blank">criterio de éxito 1.1.1 de WCAG 2.2</a>.
+                Permite que las personas con discapacidad visual que usan lectores de pantalla
+                (NVDA, JAWS, VoiceOver) entiendan el contenido de las imágenes. También ayuda a los motores
+                de búsqueda a indexar tus imágenes, mejorando el <strong>SEO</strong> de tu sitio web.
+            </p>
+            <p>
+                Un alt text efectivo describe lo que muestra la imagen de forma concisa. Por ejemplo, en
+                lugar de <code>alt="imagen"</code>, usa
+                <code>alt="Formulario de contacto con campos de nombre, email y mensaje"</code>.
+                Según el <a href="https://webaim.org/projects/million/" rel="noopener noreferrer" target="_blank">informe WebAIM Million 2024</a>,
+                el 54,5% de las imágenes en la web carecen de un texto alternativo adecuado.
+            </p>
+        </div>
     </section>
 
     <section aria-labelledby="features-titulo">
@@ -539,7 +579,7 @@
             <div class="feature">
                 <div class="icon" aria-hidden="true">&#9889;</div>
                 <h3>Rápido e inteligente</h3>
-                <p>Inteligencia artificial analiza tus imágenes y genera descripciones precisas en segundos.</p>
+                <p>Google Gemini analiza tus imágenes y genera descripciones precisas en segundos.</p>
             </div>
             <div class="feature">
                 <div class="icon" aria-hidden="true">&#127760;</div>
@@ -577,22 +617,22 @@
             <div class="step">
                 <div class="step-number">1</div>
                 <div class="step-text">
-                    <h3>Sube tus imágenes</h3>
-                    <p>Arrastra o selecciona hasta varias imágenes (JPG, PNG, WebP).</p>
+                    <h3>Elige una categoría</h3>
+                    <p>General, Personas, Vestuario o Paisajes. Cada una genera descripciones especializadas.</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-number">2</div>
                 <div class="step-text">
-                    <h3>Elige una categoría</h3>
-                    <p>General, Personas, Vestuario o Paisajes. Cada una genera descripciones especializadas.</p>
+                    <h3>Sube tus imágenes</h3>
+                    <p>Arrastra o selecciona hasta varias imágenes (JPG, PNG, WebP).</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-number">3</div>
                 <div class="step-text">
                     <h3>Obtén tus alt texts</h3>
-                    <p>La IA analiza cada imagen y genera texto alternativo en español e inglés.</p>
+                    <p>Google Gemini analiza cada imagen y genera el texto alternativo descriptivo en español e inglés, listo para usar en tu sitio web.</p>
                 </div>
             </div>
             <div class="step">
@@ -609,16 +649,28 @@
         <h2 id="videos-titulo">Mira cómo funciona</h2>
         <div class="videos">
             <div class="video-card">
-                <iframe src="https://www.youtube.com/embed/sBb3rqzI3yI" title="Tutorial de GaryText Pro con lector de pantalla" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe
+                    src="https://www.youtube.com/embed/sBb3rqzI3yI"
+                    width="560" height="315"
+                    title="Tutorial de GaryText Pro con lector de pantalla"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
                 <div class="video-info">
                     <h3>Tutorial con lector de pantalla</h3>
                     <p>Aprende a usar GaryText Pro con NVDA, JAWS o TalkBack.</p>
                 </div>
             </div>
             <div class="video-card">
-                <iframe src="https://www.youtube.com/embed/b9Me5LFimlY" title="Categorías de análisis en GaryText Pro" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe
+                    src="https://www.youtube.com/embed/b9Me5LFimlY"
+                    width="560" height="315"
+                    title="Demo de categorías de análisis en GaryText Pro"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
                 <div class="video-info">
-                    <h3>Categorías de análisis</h3>
+                    <h3>Demo: análisis por categoría</h3>
                     <p>General, Personas, Vestuario y Paisajes: descripciones especializadas para cada tipo de imagen.</p>
                 </div>
             </div>
@@ -658,19 +710,19 @@
             </details>
             <details>
                 <summary>¿Qué formatos de imagen acepta?</summary>
-                <p>Acepta JPG, JPEG, PNG y WebP. Puedes subir varias imágenes a la vez.</p>
+                <p>GaryText Pro acepta JPG, JPEG, PNG y WebP. Puedes subir varias imágenes a la vez.</p>
             </details>
             <details>
                 <summary>¿Mis imágenes se almacenan en algún servidor?</summary>
-                <p>No. Las imágenes se procesan en el momento y no se guardan en ningún servidor después del análisis.</p>
+                <p>No. GaryText Pro procesa las imágenes en el momento y no las almacena en ningún servidor después del análisis.</p>
             </details>
             <details>
                 <summary>¿Qué tan preciso es el texto alternativo generado?</summary>
-                <p>La IA genera descripciones muy precisas, pero siempre es recomendable revisar y ajustar el resultado según el contexto de uso.</p>
+                <p>GaryText Pro genera descripciones muy precisas gracias a Google Gemini, pero siempre es recomendable revisar y ajustar el resultado según el contexto de uso.</p>
             </details>
             <details>
                 <summary>¿Puedo usar los textos generados en mi sitio web?</summary>
-                <p>Sí. Los textos generados son tuyos y puedes usarlos libremente en tu sitio web, redes sociales o cualquier proyecto.</p>
+                <p>Sí. Los textos que genera GaryText Pro son tuyos y puedes usarlos libremente en tu sitio web, redes sociales o cualquier proyecto.</p>
             </details>
             <details>
                 <summary>¿Para qué sirve el texto alternativo en SEO?</summary>
@@ -683,16 +735,16 @@
         <div class="consultoria-box">
             <h2 id="consultoria-titulo">¿Necesitas más que alt text?</h2>
             <p>
-                El texto alternativo es solo el comienzo de la accesibilidad web. Si tu sitio necesita una
-                <strong>auditoría WCAG 2.2</strong>, testing manual con NVDA, JAWS, VoiceOver o TalkBack,
-                o revisión de código con perspectiva real de usuario con discapacidad visual, puedo ayudarte.
+                <strong>Gary Muñoz Peña</strong>, consultor en accesibilidad web con discapacidad visual,
+                ofrece auditorías <strong>WCAG 2.2</strong>, testing manual con NVDA, JAWS, VoiceOver
+                y TalkBack, para todo tipo de proyecto digital.
             </p>
             <a href="https://digitalaccessibility.cl?utm_source=garytext&utm_medium=referral&utm_campaign=consultoria_banner"
                class="consultoria-link"
                target="_blank"
                rel="noopener noreferrer"
                onclick="gtag('event', 'consultoria_click', {location: 'section'})">
-                Ver servicios de consultoría
+                Visita digitalaccessibility.cl
                 <span class="sr-only"> (se abre en nueva pestaña)</span>
             </a>
         </div>
@@ -702,9 +754,13 @@
 
     <div class="cta-final">
         <p>Mejora la accesibilidad y el SEO de tu sitio web hoy mismo.</p>
-        <a href="https://generador-de-altext-para-imagenes.streamlit.app/" class="cta-button"
+        <a href="https://generador-de-altext-para-imagenes.streamlit.app/"
+           class="cta-button"
+           target="_blank"
+           rel="noopener noreferrer"
            onclick="gtag('event', 'app_click', {location: 'cta_final'})">
             Empezar gratis
+            <span class="sr-only"> (se abre en nueva pestaña)</span>
         </a>
     </div>
 
@@ -714,13 +770,20 @@
         <p>&copy; 2026 GaryText Pro · Una herramienta de
             <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer"
                onclick="gtag('event', 'footer_link_click', {location: 'footer_consultoria'})">
-                Gary · Consultor en Accesibilidad Web
+                Gary Muñoz Peña · Consultor en Accesibilidad Web
                 <span class="sr-only"> (se abre en nueva pestaña)</span>
             </a>
         </p>
         <p style="margin-top: 8px;">
             <a href="https://github.com/GaryMp/Generador-de-altext-para-imagenes"
-               onclick="gtag('event', 'footer_link_click', {location: 'footer_github'})">GitHub</a>
+               rel="noopener noreferrer"
+               target="_blank"
+               onclick="gtag('event', 'footer_link_click', {location: 'footer_github'})">
+                GitHub
+                <span class="sr-only"> (se abre en nueva pestaña)</span>
+            </a>
+            ·
+            <a href="/privacy.html">Política de privacidad</a>
         </p>
     </footer>
 

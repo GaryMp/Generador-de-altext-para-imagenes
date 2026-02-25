@@ -1,0 +1,20 @@
+# GaryText Pro
+
+> Generador gratuito de textos alternativos (alt text) para imágenes usando inteligencia artificial (Google Gemini). Compatible con WCAG 2.2 criterio de éxito 1.1.1. Sin registro, sin límites, sin costo.
+
+## Herramienta
+
+- [Aplicación web](https://generador-de-altext-para-imagenes.streamlit.app/): Accede directamente a la herramienta de generación de alt text
+- [Página principal](https://descubrir.digitalaccessibility.cl/): Documentación, tutoriales y descripción completa
+
+## Sobre GaryText Pro
+
+GaryText Pro genera textos alternativos en español e inglés para imágenes JPG, PNG y WebP usando Google Gemini. Ofrece 4 categorías de análisis especializadas: General (descripción genérica), Personas (género, edad, rasgos físicos), Vestuario (prendas, colores, texturas) y Paisajes (elementos naturales, clima). Las imágenes no se almacenan en ningún servidor. Compatible con WCAG 2.2 criterio de éxito 1.1.1 (Contenido no textual).
+
+## Sobre el autor
+
+Desarrollado por Gary Muñoz Peña, consultor en accesibilidad web en Chile con discapacidad visual. Especializado en auditorías WCAG 2.2 y testing con lectores de pantalla (NVDA, JAWS, VoiceOver, TalkBack).
+
+## Consultoría de accesibilidad
+
+- [digitalaccessibility.cl](https://digitalaccessibility.cl): Servicios de consultoría en accesibilidad web WCAG para empresas en Chile y Latinoamérica
