@@ -11,31 +11,10 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://descubrir.digitalaccessibility.cl/">
     <link rel="alternate" hreflang="es-CL" href="https://descubrir.digitalaccessibility.cl/">
-    <script>
-      if (location.hostname.includes('github.io')) {
-        window.location.replace('https://descubrir.digitalaccessibility.cl/');
-      }
-    </script>
+    <!-- CSP: sin 'unsafe-inline' en script-src — todo el JS vive en app.js externo -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://img.youtube.com data:; frame-src https://www.youtube-nocookie.com; connect-src https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com; font-src 'self'; object-src 'none';">
 
-    <!-- CSP: declarada en Cloudflare como header HTTP para mayor cobertura.
-         Esta meta cubre navegadores que no reciben el header (ej. GitHub Pages directo). -->
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' https://www.googletagmanager.com;
-      style-src 'self' 'unsafe-inline';
-      img-src 'self' https://img.youtube.com https://descubrir.digitalaccessibility.cl data:;
-      frame-src https://www.youtube.com https://www.youtube-nocookie.com;
-      connect-src https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com;
-      font-src 'self';
-      object-src 'none';
-    ">
-
-    <!-- GA4: stub síncrono para que los onclick no fallen antes de que cargue el script real.
-         El script real se inyecta tras la primera interacción del usuario. -->
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = function(){ dataLayer.push(arguments); };
-    </script>
+    <script src="app.js" defer></script>
 
     <!-- Open Graph -->
     <meta property="og:title" content="GaryText Pro - Generador de Textos Alternativos Gratis">
@@ -622,7 +601,8 @@
            class="cta-button"
            target="_blank"
            rel="noopener noreferrer"
-           onclick="gtag('event', 'app_click', {location: 'hero'})">
+           data-ga-event="app_click"
+           data-ga-location="hero">
             Generar alt text gratis
             <span class="sr-only"> (se abre en nueva pestaña)</span>
         </a>
@@ -825,7 +805,8 @@
                class="consultoria-link"
                target="_blank"
                rel="noopener noreferrer"
-               onclick="gtag('event', 'consultoria_click', {location: 'section'})">
+               data-ga-event="consultoria_click"
+               data-ga-location="section">
                 Visita digitalaccessibility.cl
                 <span class="sr-only"> (se abre en nueva pestaña)</span>
             </a>
@@ -840,7 +821,8 @@
            class="cta-button"
            target="_blank"
            rel="noopener noreferrer"
-           onclick="gtag('event', 'app_click', {location: 'cta_final'})">
+           data-ga-event="app_click"
+           data-ga-location="cta_final">
             Empezar gratis
             <span class="sr-only"> (se abre en nueva pestaña)</span>
         </a>
@@ -851,7 +833,8 @@
     <footer>
         <p>&copy; 2026 GaryText Pro · Una herramienta de
             <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer"
-               onclick="gtag('event', 'footer_link_click', {location: 'footer_consultoria'})">
+               data-ga-event="footer_link_click"
+               data-ga-location="footer_consultoria">
                 Gary Muñoz Peña · Consultor en Accesibilidad Web
                 <span class="sr-only"> (se abre en nueva pestaña)</span>
             </a>
@@ -860,7 +843,8 @@
             <a href="https://github.com/GaryMp/Generador-de-altext-para-imagenes"
                rel="noopener noreferrer"
                target="_blank"
-               onclick="gtag('event', 'footer_link_click', {location: 'footer_github'})">
+               data-ga-event="footer_link_click"
+               data-ga-location="footer_github">
                 GitHub
                 <span class="sr-only"> (se abre en nueva pestaña)</span>
             </a>
@@ -869,52 +853,5 @@
         </p>
     </footer>
 
-    <script>
-        /* ── YouTube Facade ──────────────────────────────────────────────────
-           Reemplaza el botón-facade con un iframe real al hacer clic.
-           Eliminamos ~900 KB de JS y ~90 KB de CSS de YouTube en la carga inicial. */
-        document.querySelectorAll('.video-facade').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                var iframe = document.createElement('iframe');
-                iframe.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.embed + '?autoplay=1&rel=0';
-                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                iframe.allowFullscreen = true;
-                iframe.title = btn.getAttribute('aria-label').replace('Reproducir: ', '').replace(' (YouTube)', '');
-                btn.replaceWith(iframe);
-            });
-        });
-
-        /* ── GA4 diferido ────────────────────────────────────────────────────
-           Carga gtag.js solo después de la primera interacción del usuario.
-           Reduce TBT ~200-400 ms en mobile 4G. El stub ya existe en el <head>
-           para que los eventos onclick no fallen antes de que cargue el script. */
-        var _gaLoaded = false;
-        function _loadGA4() {
-            if (_gaLoaded) return;
-            _gaLoaded = true;
-            var s = document.createElement('script');
-            s.src = 'https://www.googletagmanager.com/gtag/js?id=G-9S47BNHFHZ';
-            s.async = true;
-            document.head.appendChild(s);
-            s.onload = function() {
-                gtag('js', new Date());
-                gtag('config', 'G-9S47BNHFHZ');
-            };
-        }
-        ['click', 'touchstart', 'scroll', 'keydown'].forEach(function(ev) {
-            document.addEventListener(ev, _loadGA4, { once: true, passive: true });
-        });
-
-        /* ── FAQ tracking ───────────────────────────────────────────────────*/
-        document.querySelectorAll('.faq details').forEach(function(detail) {
-            detail.addEventListener('toggle', function() {
-                if (this.open) {
-                    gtag('event', 'faq_open', {
-                        question: this.querySelector('summary').textContent.trim()
-                    });
-                }
-            });
-        });
-    </script>
 </body>
 </html>
