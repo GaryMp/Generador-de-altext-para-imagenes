@@ -22,16 +22,29 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Meta descripción para SEO (WCAG / PageSpeed)
+st.markdown(
+    '<meta name="description" content="Generador de Alt Text gratuito con IA. Mejora la accesibilidad de tus imágenes en segundos con GaryText Pro.">',
+    unsafe_allow_html=True
+)
+
 # CSS WCAG 2.2 AA
 st.markdown(CSS_WCAG, unsafe_allow_html=True)
 
-# Inyectar lang="es" para screen readers (WCAG 3.1.1)
+# Inyectar lang="es" y role="main" en el contenedor principal (WCAG 3.1.1 + landmark)
 components.html("""
 <script>
 (function() {
     try {
         var root = window.parent.document.documentElement;
         root.setAttribute('lang', 'es');
+    } catch(e) {}
+    try {
+        var stMain = window.parent.document.querySelector('[data-testid="stMain"]');
+        if (stMain && !stMain.getAttribute('role')) {
+            stMain.setAttribute('role', 'main');
+            stMain.setAttribute('aria-label', 'Contenido principal');
+        }
     } catch(e) {}
     try { if (window.frameElement) {
         window.frameElement.setAttribute('aria-hidden', 'true');
@@ -227,11 +240,11 @@ if st.session_state.foco_subir:
     """, height=0)
 
 archivos = st.file_uploader(
-    "Examinar archivos",
+    "Examinar archivos (JPG, PNG, WEBP)",
     type=["jpg", "jpeg", "png", "webp"],
     accept_multiple_files=True,
     key=f"uploader_{st.session_state.uploader_key}",
-    label_visibility="collapsed"
+    label_visibility="visible"
 )
 
 # Detectar cambio en archivos → iniciar procesamiento
@@ -356,7 +369,7 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
                 value=r['descripcion'],
                 key=f"txt_{i}",
                 height=100,
-                label_visibility="collapsed",
+                label_visibility="visible",
                 on_change=sincronizar_descripcion,
                 args=(i,)
             )
@@ -458,7 +471,7 @@ st.markdown(f"""
     </p>
     <p style="margin-bottom: 0.3rem;">GaryText Pro v0.1 · Por
         <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer"
-           style="color: #e8e8e8; text-decoration: underline;">Gary · Consultor en Accesibilidad Web
+           style="color: #1a1a1a; text-decoration: underline;">Gary · Consultor en Accesibilidad Web
             <span class="sr-only"> (se abre en nueva pestaña)</span>
         </a>
     </p>
@@ -466,7 +479,7 @@ st.markdown(f"""
         Si te ha parecido útil esta aplicación, no dudes en donarme un café
     </p>
     <a href="https://ko-fi.com/garydev" target="_blank" rel="noopener noreferrer">
-        <img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Donar un café en Ko-fi" style="height: 36px; border: 0;">
+        <img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Donar un café en Ko-fi" width="143" height="36" style="border: 0;">
     </a>
 </div>
 """, unsafe_allow_html=True)
