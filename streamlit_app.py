@@ -22,36 +22,91 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Meta descripción para SEO (WCAG / PageSpeed)
-st.markdown(
-    '<meta name="description" content="Generador de Alt Text gratuito con IA. Mejora la accesibilidad de tus imágenes en segundos con GaryText Pro.">',
-    unsafe_allow_html=True
-)
-
 # CSS WCAG 2.2 AA
 st.markdown(CSS_WCAG, unsafe_allow_html=True)
 
-# Inyectar lang="es" y role="main" en el contenedor principal (WCAG 3.1.1 + landmark)
+# Inyecciones de accesibilidad y SEO en el documento padre (WCAG 3.1.1 / Lighthouse)
+# — Este iframe se ejecuta en el mismo origen que la app Streamlit,
+#   por lo que window.parent.document es accesible.
+# — MutationObserver garantiza que actuamos DESPUÉS de que Streamlit renderice el DOM.
 components.html("""
 <script>
 (function() {
+    var d;
+    try { d = window.parent.document; } catch(e) { return; }
+
+    // Ocultar este iframe del árbol de accesibilidad
     try {
-        var root = window.parent.document.documentElement;
-        root.setAttribute('lang', 'es');
-    } catch(e) {}
-    try {
-        var stMain = window.parent.document.querySelector('[data-testid="stMain"]');
-        if (stMain && !stMain.getAttribute('role')) {
-            stMain.setAttribute('role', 'main');
-            stMain.setAttribute('aria-label', 'Contenido principal');
+        if (window.frameElement) {
+            window.frameElement.setAttribute('aria-hidden', 'true');
+            window.frameElement.tabIndex = -1;
+            window.frameElement.title = '';
+            window.frameElement.style.cssText =
+                'position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;border:0';
         }
     } catch(e) {}
-    try { if (window.frameElement) {
-        window.frameElement.setAttribute('aria-hidden', 'true');
-        window.frameElement.tabIndex = -1;
-        window.frameElement.title = '';
-        window.frameElement.style.display = 'none';
-    }} catch(e) {}
+
+    // ① lang="es" — se puede hacer de inmediato
+    try { d.documentElement.setAttribute('lang', 'es'); } catch(e) {}
+
+    // ② Meta description en <head> — Lighthouse solo busca en document.head
+    try {
+        if (!d.head.querySelector('meta[name="description"]')) {
+            var m = d.createElement('meta');
+            m.setAttribute('name', 'description');
+            m.setAttribute('content', 'Generador de Alt Text gratuito con IA. Mejora la accesibilidad de tus imágenes en segundos con GaryText Pro.');
+            d.head.appendChild(m);
+        }
+    } catch(e) {}
+
+    // ③ Aplica role="main", aria-labels en formularios y width/height en imágenes
+    function applyAll() {
+        try {
+            // role="main" en el contenedor principal de Streamlit
+            var stMain = d.querySelector('[data-testid="stMain"]');
+            if (stMain && !stMain.getAttribute('role')) {
+                stMain.setAttribute('role', 'main');
+                stMain.setAttribute('aria-label', 'Contenido principal');
+            }
+
+            // aria-label en inputs de archivo (Streamlit no genera <label for="">)
+            d.querySelectorAll('input[type="file"]').forEach(function(inp) {
+                if (!inp.getAttribute('aria-label') && !inp.getAttribute('aria-labelledby')) {
+                    var container = inp.closest('[data-testid="stFileUploader"]');
+                    var lbl = container && container.querySelector('label');
+                    inp.setAttribute('aria-label', lbl ? lbl.textContent.trim() : 'Examinar archivos. Formatos: JPG, PNG, WEBP');
+                }
+            });
+
+            // for/id en text areas (Streamlit no siempre genera la asociación)
+            d.querySelectorAll('[data-testid="stTextArea"]').forEach(function(el) {
+                var label = el.querySelector('label');
+                var ta = el.querySelector('textarea');
+                if (label && ta && !label.getAttribute('for')) {
+                    if (!ta.id) ta.id = 'ta-' + Math.random().toString(36).slice(2, 9);
+                    label.setAttribute('for', ta.id);
+                }
+            });
+
+            // width/height explícitos en imágenes de st.image (evita CLS)
+            d.querySelectorAll('[data-testid="stImage"] img').forEach(function(img) {
+                if (img.naturalWidth && !img.hasAttribute('width')) {
+                    img.setAttribute('width', img.naturalWidth);
+                    img.setAttribute('height', img.naturalHeight);
+                }
+            });
+        } catch(e) {}
+    }
+
+    // Ejecutar ahora y luego mantener observer para reruns de Streamlit
+    applyAll();
+    var debounce;
+    try {
+        new MutationObserver(function() {
+            clearTimeout(debounce);
+            debounce = setTimeout(applyAll, 250);
+        }).observe(d.body, { childList: true, subtree: true });
+    } catch(e) {}
 })();
 </script>
 """, height=0)
