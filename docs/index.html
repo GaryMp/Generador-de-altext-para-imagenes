@@ -17,13 +17,24 @@
       }
     </script>
 
-    <!-- Google Analytics GA4 -->
-    <script async fetchpriority="low" src="https://www.googletagmanager.com/gtag/js?id=G-9S47BNHFHZ"></script>
+    <!-- CSP: declarada en Cloudflare como header HTTP para mayor cobertura.
+         Esta meta cubre navegadores que no reciben el header (ej. GitHub Pages directo). -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' https://www.googletagmanager.com;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' https://img.youtube.com https://descubrir.digitalaccessibility.cl data:;
+      frame-src https://www.youtube.com https://www.youtube-nocookie.com;
+      connect-src https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com;
+      font-src 'self';
+      object-src 'none';
+    ">
+
+    <!-- GA4: stub síncrono para que los onclick no fallen antes de que cargue el script real.
+         El script real se inyecta tras la primera interacción del usuario. -->
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-9S47BNHFHZ');
+        window.gtag = function(){ dataLayer.push(arguments); };
     </script>
 
     <!-- Open Graph -->
@@ -180,7 +191,7 @@
 
         .cta-button {
             display: inline-block;
-            background: #228B22;
+            background: #1a6e1a;
             color: #fff;
             text-decoration: none;
             padding: 16px 40px;
@@ -191,7 +202,7 @@
         }
 
         .cta-button:hover {
-            background: #1a6e1a;
+            background: #145214;
             transform: translateY(-2px);
         }
 
@@ -244,7 +255,7 @@
         }
 
         .que-es a {
-            color: #228B22;
+            color: #1a6e1a;
             text-decoration: underline;
         }
 
@@ -304,7 +315,7 @@
         }
 
         .step-number {
-            background: #228B22;
+            background: #1a6e1a;
             color: #fff;
             width: 36px;
             height: 36px;
@@ -391,7 +402,7 @@
         .faq summary::after {
             content: "+";
             font-size: 1.3rem;
-            color: #228B22;
+            color: #1a6e1a;
             font-weight: 700;
         }
 
@@ -419,7 +430,7 @@
         }
 
         footer a {
-            color: #228B22;
+            color: #1a6e1a;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -445,6 +456,68 @@
             overflow: hidden;
         }
 
+        /* Facade: thumbnail clickeable — el iframe carga solo al hacer clic */
+        .video-facade {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            cursor: pointer;
+            display: block;
+            border: none;
+            padding: 0;
+        }
+
+        .video-facade img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+
+        .video-facade:hover img,
+        .video-facade:focus img {
+            opacity: 1;
+        }
+
+        .video-facade .play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 64px;
+            height: 44px;
+            background: #cc0000;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.2s;
+            pointer-events: none;
+        }
+
+        .video-facade:hover .play-btn,
+        .video-facade:focus .play-btn {
+            background: #ff0000;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-facade .play-btn::after {
+            content: '';
+            border-style: solid;
+            border-width: 10px 0 10px 20px;
+            border-color: transparent transparent transparent #fff;
+            margin-left: 5px;
+        }
+
+        .video-facade:focus-visible {
+            outline: 3px solid #0056b3;
+            outline-offset: 2px;
+        }
+
+        /* iframe inyectado al hacer clic */
         .video-card iframe {
             width: 100%;
             aspect-ratio: 16 / 9;
@@ -655,26 +728,29 @@
         <h2 id="videos-titulo">Mira cómo funciona</h2>
         <div class="videos">
             <div class="video-card">
-                <iframe
-                    src="https://www.youtube.com/embed/sBb3rqzI3yI"
-                    width="560" height="315"
-                    title="Tutorial de GaryText Pro con lector de pantalla"
-                    loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen></iframe>
+                <!-- Facade: carga el iframe de YouTube solo al hacer clic (ahorra ~900 KB JS) -->
+                <button class="video-facade"
+                        data-embed="sBb3rqzI3yI"
+                        aria-label="Reproducir: Tutorial de GaryText Pro con lector de pantalla (YouTube)">
+                    <img src="https://img.youtube.com/vi/sBb3rqzI3yI/hqdefault.jpg"
+                         alt="Miniatura del tutorial de GaryText Pro con lector de pantalla"
+                         loading="lazy" width="480" height="360">
+                    <span class="play-btn" aria-hidden="true"></span>
+                </button>
                 <div class="video-info">
                     <h3>Tutorial con lector de pantalla</h3>
                     <p>Aprende a usar GaryText Pro con NVDA, JAWS o TalkBack.</p>
                 </div>
             </div>
             <div class="video-card">
-                <iframe
-                    src="https://www.youtube.com/embed/b9Me5LFimlY"
-                    width="560" height="315"
-                    title="Demo de categorías de análisis en GaryText Pro"
-                    loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen></iframe>
+                <button class="video-facade"
+                        data-embed="b9Me5LFimlY"
+                        aria-label="Reproducir: Demo de categorías de análisis en GaryText Pro (YouTube)">
+                    <img src="https://img.youtube.com/vi/b9Me5LFimlY/hqdefault.jpg"
+                         alt="Miniatura del demo de categorías de análisis en GaryText Pro"
+                         loading="lazy" width="480" height="360">
+                    <span class="play-btn" aria-hidden="true"></span>
+                </button>
                 <div class="video-info">
                     <h3>Demo: análisis por categoría</h3>
                     <p>General, Personas, Vestuario y Paisajes: descripciones especializadas para cada tipo de imagen.</p>
@@ -794,6 +870,42 @@
     </footer>
 
     <script>
+        /* ── YouTube Facade ──────────────────────────────────────────────────
+           Reemplaza el botón-facade con un iframe real al hacer clic.
+           Eliminamos ~900 KB de JS y ~90 KB de CSS de YouTube en la carga inicial. */
+        document.querySelectorAll('.video-facade').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var iframe = document.createElement('iframe');
+                iframe.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.embed + '?autoplay=1&rel=0';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                iframe.title = btn.getAttribute('aria-label').replace('Reproducir: ', '').replace(' (YouTube)', '');
+                btn.replaceWith(iframe);
+            });
+        });
+
+        /* ── GA4 diferido ────────────────────────────────────────────────────
+           Carga gtag.js solo después de la primera interacción del usuario.
+           Reduce TBT ~200-400 ms en mobile 4G. El stub ya existe en el <head>
+           para que los eventos onclick no fallen antes de que cargue el script. */
+        var _gaLoaded = false;
+        function _loadGA4() {
+            if (_gaLoaded) return;
+            _gaLoaded = true;
+            var s = document.createElement('script');
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=G-9S47BNHFHZ';
+            s.async = true;
+            document.head.appendChild(s);
+            s.onload = function() {
+                gtag('js', new Date());
+                gtag('config', 'G-9S47BNHFHZ');
+            };
+        }
+        ['click', 'touchstart', 'scroll', 'keydown'].forEach(function(ev) {
+            document.addEventListener(ev, _loadGA4, { once: true, passive: true });
+        });
+
+        /* ── FAQ tracking ───────────────────────────────────────────────────*/
         document.querySelectorAll('.faq details').forEach(function(detail) {
             detail.addEventListener('toggle', function() {
                 if (this.open) {
