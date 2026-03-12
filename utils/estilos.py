@@ -238,7 +238,6 @@ CSS_WCAG = """
         border: none !important;
         height: 2px !important;
         background: linear-gradient(90deg, #228B22 0%, #FFD700 50%, #DC143C 100%) !important;
-        opacity: 0.6 !important;
         margin: 1rem 0 !important;
     }
 
