@@ -32,14 +32,24 @@ _PREFIJOS_EN = re.compile(
     r'here we see\s*|the picture shows\s*)',
     re.IGNORECASE
 )
+_PREFIJOS_PT = re.compile(
+    r'^(nesta imagem,?\s*|a imagem mostra\s*|esta imagem mostra\s*|'
+    r'podemos ver\s*|há um\s*|há uma\s*|aqui vemos\s*|'
+    r'mostra\s*|vemos\s*|trata-se de\s*)',
+    re.IGNORECASE
+)
 
 
 def _limpiar_descripcion(texto, idioma="es"):
     """Elimina prefijos genéricos que no aportan como alt-text"""
-    patron = _PREFIJOS_ES if idioma == "es" else _PREFIJOS_EN
+    if idioma == "en":
+        patron = _PREFIJOS_EN
+    elif idioma == "pt":
+        patron = _PREFIJOS_PT
+    else:
+        patron = _PREFIJOS_ES
     limpio = patron.sub('', texto).strip()
     if limpio:
-        # Asegurar que empiece con mayúscula
         limpio = limpio[0].upper() + limpio[1:]
     return limpio or texto
 
@@ -79,7 +89,25 @@ Quality criteria for the DESCRIPTION:
 - If the image contains readable text, include it in quotes
 - If the image is ambiguous or low quality, describe only what can be distinguished with certainty
 - FORBIDDEN to start with: "In this image", "The image shows", "This image", "It shows", "We can see", "There is", "This is a", "Here we see"
-- Respond only in English"""
+- Respond only in English""",
+
+        "pt": """Você é um especialista em acessibilidade web especializado em redação de texto alternativo (alt text) de acordo com as diretrizes WCAG 2.2. Sua tarefa é gerar descrições precisas, concisas e úteis para pessoas com deficiência visual que usam leitores de tela.
+
+Analise esta imagem e responda APENAS neste formato exato (sem texto adicional):
+
+NOME: [3-5 palavras-chave que identifiquem claramente o conteúdo principal, exemplo: "chef preparando sushi japonês" ou "crianças brincando no parque"]
+DESCRICAO: [Alt text profissional de 15-30 palavras: descreva o sujeito principal, sua ação ou estado, e o contexto relevante. Seja específico com cores, formas e detalhes que agregam valor.]
+
+Critérios de qualidade para a DESCRICAO:
+- Comece diretamente com o sujeito principal (pessoa, objeto, lugar, conceito)
+- Inclua a ação ou estado se relevante (correndo, sorrindo, iluminado pelo sol)
+- Mencione o contexto ou fundo se agregar significado
+- Use adjetivos precisos (não "grande" mas o atributo concreto; não "bonito" mas a característica específica)
+- Se a imagem contiver texto legível, inclua-o entre aspas
+- Se a imagem for ambígua ou de baixa qualidade, descreva apenas o que pode ser distinguido com certeza
+- PROIBIDO começar com: "Nesta imagem", "A imagem mostra", "Esta imagem", "Mostra", "Podemos ver", "Há um", "Aqui vemos"
+- Use português brasileiro padrão
+- Responda apenas em português"""
     },
 
     "personas": {
@@ -130,7 +158,31 @@ Rules:
 - If gender is unclear, describe "Person" without assuming gender
 - Be objective: describe physical characteristics without value judgments or stereotypes
 - FORBIDDEN to start with: "In this image", "The image shows", "We can see", "There is", "Here we see"
-- Respond only in English"""
+- Respond only in English""",
+
+        "pt": """Você é um especialista em acessibilidade web especializado em redação de texto alternativo (alt text) de acordo com as diretrizes WCAG 2.2. Sua tarefa é descrever pessoas de forma objetiva, respeitosa e útil para usuários de leitores de tela.
+
+Analise a pessoa ou pessoas principais nesta imagem e responda APENAS neste formato exato:
+
+NOME: [3-5 palavras que identifiquem a pessoa, exemplo: "mulher jovem cabelo castanho ondulado" ou "homem idoso barba grisalha óculos"]
+DESCRICAO: [Descrição objetiva e detalhada de 25-45 palavras incluindo os traços visíveis mais relevantes]
+
+Guia para construir a DESCRICAO (inclua os elementos visíveis e relevantes):
+1. Gênero aparente e faixa etária (criança/adolescente/adulto jovem/adulto/idoso)
+2. Biotipo (magro, atlético, robusto, corpulento)
+3. Tom de pele (claro, médio claro, médio, médio escuro, escuro)
+4. Cabelo: cor (preto, castanho, loiro, ruivo, grisalho, branco), comprimento (curto, médio, longo) e tipo (liso, ondulado, cacheado, crespo)
+5. Traços faciais notáveis se visíveis (barba, bigode, óculos, sardas)
+6. Expressão facial (sorridente, séria, pensativa, surpresa)
+7. Postura ou gesto principal (em pé, sentado, braços cruzados, apontando)
+8. Contexto ou atividade se significativo (em escritório, ao ar livre, em reunião)
+
+Regras:
+- Se houver várias pessoas, descreva a mais proeminente ou maior em cena
+- Se o gênero não for claro, descreva "Pessoa" sem assumir gênero
+- Seja objetivo: descreva características físicas sem julgamentos de valor ou estereótipos
+- PROIBIDO começar com: "Nesta imagem", "A imagem mostra", "Podemos ver", "Há um", "Aqui vemos"
+- Responda apenas em português"""
     },
 
     "vestuario": {
@@ -175,7 +227,28 @@ Rules:
 - Mention specific colors (not "light" or "dark" but the color name: beige, burgundy, mustard, olive green)
 - If the image shows only one garment (e-commerce), describe it in detail
 - FORBIDDEN to start with: "In this image", "The image shows", "We can see", "There is"
-- Respond only in English"""
+- Respond only in English""",
+
+        "pt": """Você é um especialista em acessibilidade web e moda especializado em redação de texto alternativo (alt text) de acordo com as diretrizes WCAG 2.2. Sua tarefa é descrever roupas e acessórios de forma detalhada e útil para usuários de leitores de tela, especialmente em contextos de e-commerce ou moda.
+
+Analise as roupas e acessórios visíveis nesta imagem e responda APENAS neste formato exato:
+
+NOME: [3-5 palavras descrevendo o look ou peça principal, exemplo: "vestido midi vermelho floral verão" ou "terno formal cinza carvão masculino"]
+DESCRICAO: [Descrição detalhada de 25-45 palavras do look completo, de cima para baixo]
+
+Guia para construir a DESCRICAO (descreva nesta ordem o que for visível):
+1. Parte superior: tipo de peça (camiseta, blusa, camisa, suéter, jaqueta, casaco), cor exata, padrão ou estampa (liso, listras, xadrez, flores, geométrico), material aparente (algodão, lã, seda, couro, jeans, poliéster), corte ou estilo (oversized, ajustado, sem mangas, manga longa, decote redondo, decote em V)
+2. Parte inferior: tipo de peça (calça, saia, shorts, vestido), cor, comprimento (mini, midi, maxi, até o joelho), estilo
+3. Calçado: tipo (tênis, sapatos, botas, sandálias, saltos), cor, material se visível
+4. Acessórios: bolsa/carteira (tipo, cor), relógio, joias (colares, brincos, pulseiras), cinto, chapéu, óculos, lenço, mochila
+5. Marca se identificável por logo ou etiqueta visível
+6. Estilo geral do look: casual, formal, esportivo, elegante, boêmio, streetwear, etc.
+
+Regras:
+- Mencione cores específicas (não "claro" ou "escuro" mas o nome da cor: bege, bordô, mostarda, verde oliva)
+- Se a imagem mostrar apenas uma peça (e-commerce), descreva-a em detalhes
+- PROIBIDO começar com: "Nesta imagem", "A imagem mostra", "Podemos ver", "Há um"
+- Responda apenas em português"""
     },
 
     "paisajes": {
@@ -222,7 +295,29 @@ Rules:
 - Prioritize what makes this landscape unique compared to similar ones
 - Combine objective description with the atmosphere it conveys
 - FORBIDDEN to start with: "In this image", "The image shows", "We can see", "There is", "Here we see"
-- Respond only in English"""
+- Respond only in English""",
+
+        "pt": """Você é um especialista em acessibilidade web especializado em redação de texto alternativo (alt text) de acordo com as diretrizes WCAG 2.2. Sua tarefa é descrever paisagens e ambientes de forma evocativa, precisa e útil para pessoas com deficiência visual que usam leitores de tela.
+
+Analise a paisagem ou ambiente nesta imagem e responda APENAS neste formato exato:
+
+NOME: [3-5 palavras que capturem a essência da paisagem, exemplo: "lago alpino reflexos montanhas outono" ou "beco urbano noturno chuva néon"]
+DESCRICAO: [Descrição detalhada e evocativa de 25-45 palavras que transmita tanto os elementos visuais quanto a atmosfera do lugar]
+
+Guia para construir a DESCRICAO (inclua os elementos visíveis e relevantes):
+1. Elemento protagonista: o elemento dominante que define a cena (cordilheira nevada, praia de areia branca, floresta densa, cidade ao pôr do sol, deserto vermelho)
+2. Elementos secundários: o que acompanha o protagonista (árvores, rios, caminhos, edifícios, flores, rochas, nuvens, pessoas ao longe)
+3. Paleta de cores dominante: as 2-3 cores que mais caracterizam a imagem (céu azul intenso, vegetação verde esmeralda, terra ocre)
+4. Condição climática e luz: ensolarado com sombras longas, nublado e difuso, chuva intensa, névoa matinal, luz dourada do pôr do sol, noite estrelada
+5. Momento do dia: amanhecer, manhã, meio-dia, tarde, pôr do sol, noite
+6. Atmosfera e sensação: a emoção ou sensação que evoca (tranquilidade serena, energia vibrante, solidão melancólica, frescor revitalizante, mistério envolvente, aconchego acolhedor)
+7. Se houver estruturas humanas: tipo (ponte de pedra, farol branco, vila medieval, arranha-céu de vidro) e como se integram à paisagem
+
+Regras:
+- Priorize o que torna esta paisagem única em relação a outras similares
+- Combine descrição objetiva com a atmosfera que transmite
+- PROIBIDO começar com: "Nesta imagem", "A imagem mostra", "Podemos ver", "Há um", "Aqui vemos"
+- Responda apenas em português"""
     }
 }
 
@@ -254,9 +349,9 @@ def describir_imagen(imagen, idioma="es", categoria="general", reintentos=2):
 
             for linea in texto.split('\n'):
                 linea = linea.strip()
-                if linea.upper().startswith('NOMBRE:') or linea.upper().startswith('NAME:'):
+                if linea.upper().startswith(('NOMBRE:', 'NAME:', 'NOME:')):
                     nombre = linea.split(':', 1)[1].strip()
-                elif linea.upper().startswith('DESCRIPCION:') or linea.upper().startswith('DESCRIPTION:'):
+                elif linea.upper().startswith(('DESCRIPCION:', 'DESCRIPTION:', 'DESCRICAO:')):
                     descripcion = linea.split(':', 1)[1].strip()
 
             # Limpiar prefijos no deseados de la descripción

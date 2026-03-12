@@ -7,8 +7,9 @@ JSONBIN_BIN_ID = st.secrets.get("JSONBIN_BIN_ID", "")
 JSONBIN_API_KEY = st.secrets.get("JSONBIN_API_KEY", "")
 
 
+@st.cache_data(ttl=60)
 def obtener_contadores():
-    """Obtiene los contadores actuales desde JSONbin"""
+    """Obtiene los contadores actuales desde JSONbin. Cacheado 60s para no bloquear el render."""
     try:
         url = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}/latest"
         headers = {"X-Master-Key": JSONBIN_API_KEY}
@@ -20,10 +21,11 @@ def obtener_contadores():
         return {"imagenes": 0, "visitas": 0}
 
 
-def actualizar_contadores(imagenes=0, visitas=0):
-    """Incrementa los contadores en JSONbin"""
+def actualizar_contadores(imagenes=0, visitas=0, datos_actuales=None):
+    """Incrementa los contadores en JSONbin. Usa datos_actuales si están disponibles
+    para evitar un GET extra."""
     try:
-        datos = obtener_contadores()
+        datos = dict(datos_actuales) if datos_actuales else obtener_contadores()
         datos["imagenes"] = datos.get("imagenes", 0) + imagenes
         datos["visitas"] = datos.get("visitas", 0) + visitas
 
@@ -33,6 +35,7 @@ def actualizar_contadores(imagenes=0, visitas=0):
             "X-Master-Key": JSONBIN_API_KEY
         }
         requests.put(url, json=datos, headers=headers, timeout=5)
+        obtener_contadores.clear()  # invalidar caché tras actualizar
         return datos
     except:
         return {"imagenes": 0, "visitas": 0}

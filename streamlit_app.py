@@ -62,6 +62,9 @@ components.html("""
     // ③ Aplica role="main", aria-labels en formularios y width/height en imágenes
     function applyAll() {
         try {
+            // Limpiar clase de animación (se reactiva solo si hay procesamiento activo)
+            d.body.classList.remove('rasta-processing');
+
             // role="main" en el contenedor principal de Streamlit
             var stMain = d.querySelector('[data-testid="stMain"]');
             if (stMain && !stMain.getAttribute('role')) {
@@ -95,6 +98,29 @@ components.html("""
                     img.setAttribute('height', img.naturalHeight);
                 }
             });
+
+            // Ocultar label del uploader de lectores de pantalla (la info está en "Formatos:" arriba)
+            d.querySelectorAll('[data-testid="stFileUploader"] label').forEach(function(lbl) {
+                lbl.setAttribute('aria-hidden', 'true');
+            });
+
+            // Botón: solo para lectores de pantalla → "Examinar archivos"
+            d.querySelectorAll('[data-testid="stFileUploader"] section button').forEach(function(btn) {
+                btn.setAttribute('aria-label', 'Examinar archivos');
+            });
+
+            // Ocultar contenido visual drag-and-drop con inert (más fiable en Chrome que aria-hidden)
+            // inert elimina el elemento del árbol de accesibilidad sin afectar a sus hermanos
+            d.querySelectorAll('[data-testid="stFileUploader"] section').forEach(function(sec) {
+                Array.from(sec.children).forEach(function(child) {
+                    var tag = child.tagName.toLowerCase();
+                    if (tag !== 'button' && tag !== 'input') {
+                        child.setAttribute('inert', '');
+                        child.setAttribute('aria-hidden', 'true'); // fallback navegadores antiguos
+                    }
+                });
+            });
+
         } catch(e) {}
     }
 
@@ -112,32 +138,28 @@ components.html("""
 """, height=0)
 
 # Estado inicial
-if 'resultados' not in st.session_state:
-    st.session_state.resultados = []
-if 'archivos_previos' not in st.session_state:
-    st.session_state.archivos_previos = set()
-if 'uploader_key' not in st.session_state:
-    st.session_state.uploader_key = 0
-if 'mensaje_alerta' not in st.session_state:
-    st.session_state.mensaje_alerta = ""
-if 'mostrar_visual' not in st.session_state:
-    st.session_state.mostrar_visual = False
-if 'error_procesamiento' not in st.session_state:
-    st.session_state.error_procesamiento = False
-if 'procesando_indice' not in st.session_state:
-    st.session_state.procesando_indice = -1
-if 'foco_resultados' not in st.session_state:
-    st.session_state.foco_resultados = False
-if 'foco_subir' not in st.session_state:
-    st.session_state.foco_subir = False
+_DEFAULTS = {
+    'resultados': [],
+    'archivos_previos': set(),
+    'uploader_key': 0,
+    'mensaje_alerta': "",
+    'mostrar_visual': False,
+    'error_procesamiento': False,
+    'procesando_indice': -1,
+    'foco_resultados': False,
+    'foco_subir': False,
+    'categoria_elegida': "General",
+    'categoria_cambio': False,
+    'idioma_elegido': "Español",
+    'idioma_cambio': False,
+}
+for _k, _v in _DEFAULTS.items():
+    if _k not in st.session_state:
+        st.session_state[_k] = _v
 
 # Funciones de callback
-def marcar_descarga(nombre_archivo):
+def marcar_descarga(nombre_archivo="todas las imágenes en archivo ZIP"):
     st.session_state.mensaje_alerta = f"Descarga completada: {nombre_archivo}"
-    st.session_state.mostrar_visual = True
-
-def marcar_descarga_zip():
-    st.session_state.mensaje_alerta = "Descarga completada: todas las imágenes en archivo ZIP."
     st.session_state.mostrar_visual = True
 
 def limpiar_todo():
@@ -191,29 +213,58 @@ if st.session_state.mensaje_alerta:
         st.success(mensaje_mostrar)
 
 
-# OPCIONES AVANZADAS (colapsadas por defecto)
-with st.expander("Opciones avanzadas"):
-    idioma = st.selectbox(
-        "Idioma del texto alternativo",
-        options=["Español", "Inglés"],
-        index=0,
-        key="select_idioma"
-    )
-    metadatos = st.selectbox(
-        "Guardar en metadatos de imagen",
-        options=["Sí, guardar en EXIF", "No, solo renombrar"],
-        index=0,
-        key="select_exif"
-    )
-usar_espanol = idioma == "Español"
-guardar_exif = metadatos == "Sí, guardar en EXIF"
+# SELECTOR DE IDIOMA
+OPCIONES_IDIOMA = ["Español", "English", "Português"]
+IDIOMA_CODIGO = {"Español": "es", "English": "en", "Português": "pt"}
+guardar_exif = True  # siempre activo
+
+def _seleccionar_idioma(idioma):
+    st.session_state.idioma_elegido = idioma
+    st.session_state.idioma_cambio = True
+
+idioma_actual = st.session_state.idioma_elegido
+with st.expander(f"Idioma: {idioma_actual}"):
+    for idioma_nombre in OPCIONES_IDIOMA:
+        es_seleccionado = idioma_nombre == idioma_actual
+        st.button(
+            f"✓ {idioma_nombre}" if es_seleccionado else idioma_nombre,
+            on_click=_seleccionar_idioma,
+            args=(idioma_nombre,),
+            use_container_width=True,
+            key=f"btn_idioma_{idioma_nombre.lower()}",
+            type="primary" if es_seleccionado else "secondary"
+        )
+idioma_codigo = IDIOMA_CODIGO[idioma_actual]
+
+if st.session_state.idioma_cambio:
+    st.session_state.idioma_cambio = False
+    components.html(f"""
+    <script>
+    // {time.time()}
+    (function() {{
+        try {{ if (window.frameElement) {{
+            window.frameElement.setAttribute('aria-hidden', 'true');
+            window.frameElement.tabIndex = -1;
+            window.frameElement.style.display = 'none';
+        }} }} catch(e) {{}}
+        setTimeout(function() {{
+            var doc = window.parent.document;
+            var expanders = doc.querySelectorAll('[data-testid="stExpander"]');
+            for (var i = 0; i < expanders.length; i++) {{
+                var summary = expanders[i].querySelector('summary');
+                if (summary && summary.textContent.indexOf('Idioma:') !== -1) {{
+                    var details = expanders[i].querySelector('details');
+                    if (details) details.removeAttribute('open');
+                    setTimeout(function() {{ summary.focus(); }}, 100);
+                    break;
+                }}
+            }}
+        }}, 300);
+    }})();
+    </script>
+    """, height=0)
 
 # CATEGORÍA DE ANÁLISIS
-if 'categoria_elegida' not in st.session_state:
-    st.session_state.categoria_elegida = "General"
-if 'categoria_cambio' not in st.session_state:
-    st.session_state.categoria_cambio = False
-
 def _seleccionar_cat(cat):
     st.session_state.categoria_elegida = cat
     st.session_state.categoria_cambio = True
@@ -295,7 +346,7 @@ if st.session_state.foco_subir:
     """, height=0)
 
 archivos = st.file_uploader(
-    "Examinar archivos (JPG, PNG, WEBP)",
+    "Examinar archivos",
     type=["jpg", "jpeg", "png", "webp"],
     accept_multiple_files=True,
     key=f"uploader_{st.session_state.uploader_key}",
@@ -318,22 +369,34 @@ if archivos:
 
 # PROCESAR UNA IMAGEN A LA VEZ (con feedback NVDA entre cada una)
 if archivos and st.session_state.procesando_indice >= 0:
-    # Animación rasta durante procesamiento
-    st.markdown('<style>.stApp::before{height:6px;background:repeating-linear-gradient(90deg,#228B22 0%,#FFD700 16%,#DC143C 33%,#228B22 50%);background-size:200% 100%;animation:rasta-slide 1.5s linear infinite;}</style>', unsafe_allow_html=True)
+    # Activar animación rasta vía clase CSS (la clase se limpia en applyAll al terminar)
+    components.html(f"""
+    <script>
+    // {time.time()}
+    (function() {{
+        try {{ if (window.frameElement) {{
+            window.frameElement.setAttribute('aria-hidden', 'true');
+            window.frameElement.tabIndex = -1;
+            window.frameElement.style.display = 'none';
+        }} }} catch(e) {{}}
+        try {{ window.parent.document.body.classList.add('rasta-processing'); }} catch(e) {{}}
+    }})();
+    </script>
+    """, height=0)
 
     idx = st.session_state.procesando_indice
     total = len(archivos)
 
     if idx < total and not st.session_state.error_procesamiento:
-        # Barra de progreso visual
+        # Barra de progreso visual + anuncio para lectores de pantalla
         st.progress(idx / total, text=f"Procesando imagen {idx + 1} de {total}...")
+        st.markdown(f'<div role="status" aria-live="polite" class="sr-only">Procesando imagen {idx + 1} de {total}</div>', unsafe_allow_html=True)
 
         try:
             # Delay para rate limit (solo entre imágenes, no antes de la primera)
             if idx > 0:
                 time.sleep(1)
 
-            idioma_codigo = "es" if usar_espanol else "en"
             archivo = archivos[idx]
             imagen = Image.open(archivo)
             if imagen.mode != 'RGB':
@@ -343,13 +406,11 @@ if archivos and st.session_state.procesando_indice >= 0:
 
             nombre_nuevo = f"{limpiar_nombre(resultado['nombre'])}.jpg"
             descripcion = resultado['descripcion']
-            exif = agregar_exif(imagen, descripcion) if guardar_exif else None
 
             st.session_state.resultados.append({
                 "nombre": nombre_nuevo,
                 "descripcion": descripcion,
                 "imagen": imagen,
-                "exif": exif
             })
 
             st.session_state.procesando_indice = idx + 1
@@ -364,7 +425,7 @@ if archivos and st.session_state.procesando_indice >= 0:
             else:
                 # Todas procesadas
                 st.session_state.procesando_indice = -1
-                actualizar_contadores(imagenes=total)
+                actualizar_contadores(imagenes=total, datos_actuales=contadores)
                 st.session_state.mensaje_alerta = f"Listo. {total} {'imagen procesada' if total == 1 else 'imágenes procesadas'}. Ya puedes descargar los resultados. Recuerda, la IA puede cometer errores, no te fíes completamente de los análisis."
                 st.session_state.mostrar_visual = True
                 st.session_state.foco_resultados = True
@@ -416,10 +477,10 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
     for i, r in enumerate(st.session_state.resultados):
         col_thumb, col_info = st.columns([1, 3])
         with col_thumb:
-            st.image(r['imagen'], width=100, caption=f"Imagen {i+1}")
+            st.image(r['imagen'], width=100)
         with col_info:
             st.markdown(f"**{r['nombre']}**")
-            texto_editado = st.text_area(
+            st.text_area(
                 f"Texto alternativo imagen {i+1}",
                 value=r['descripcion'],
                 key=f"txt_{i}",
@@ -447,44 +508,49 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
                 args=(r['nombre'],)
             )
         with col2:
-            nombre_corto = r['nombre'][:20] + "..." if len(r['nombre']) > 23 else r['nombre']
-            if st.button(f"Quitar: {nombre_corto}", key=f"rm_{i}", use_container_width=True, type="secondary", on_click=quitar_resultado, args=(i,)):
+            if st.button(f"Quitar imagen {i+1}", key=f"rm_{i}", use_container_width=True, type="secondary", on_click=quitar_resultado, args=(i,)):
                 st.rerun()
 
         if i < len(st.session_state.resultados) - 1:
-            st.markdown("---")
+            st.markdown('<hr aria-hidden="true">', unsafe_allow_html=True)
 
     # Descarga ZIP y limpiar
-    st.markdown("---")
+    st.markdown('<hr aria-hidden="true">', unsafe_allow_html=True)
     if len(st.session_state.resultados) > 1:
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
-            nombres_usados = {}
-            for i, r in enumerate(st.session_state.resultados):
-                texto_actual = st.session_state.get(f"txt_{i}", r['descripcion'])
-                exif_zip = agregar_exif(r['imagen'], texto_actual) if guardar_exif else None
-                img_bytes = imagen_a_bytes(r['imagen'], exif_zip)
-                # Evitar nombres duplicados en el ZIP
-                nombre = r['nombre']
-                if nombre in nombres_usados:
-                    nombres_usados[nombre] += 1
-                    base, ext = nombre.rsplit('.', 1)
-                    nombre = f"{base}_{nombres_usados[nombre]}.{ext}"
-                else:
-                    nombres_usados[nombre] = 0
-                zf.writestr(nombre, img_bytes.getvalue())
-        zip_buffer.seek(0)
+        # Reconstruir ZIP solo si cambiaron nombres o descripciones
+        zip_fingerprint = tuple(
+            (r['nombre'], st.session_state.get(f"txt_{i}", r['descripcion']))
+            for i, r in enumerate(st.session_state.resultados)
+        )
+        if st.session_state.get('_zip_fingerprint') != zip_fingerprint:
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+                nombres_usados = {}
+                for i, r in enumerate(st.session_state.resultados):
+                    texto_actual = st.session_state.get(f"txt_{i}", r['descripcion'])
+                    exif_zip = agregar_exif(r['imagen'], texto_actual) if guardar_exif else None
+                    img_bytes = imagen_a_bytes(r['imagen'], exif_zip)
+                    nombre = r['nombre']
+                    if nombre in nombres_usados:
+                        nombres_usados[nombre] += 1
+                        base, ext = nombre.rsplit('.', 1)
+                        nombre = f"{base}_{nombres_usados[nombre]}.{ext}"
+                    else:
+                        nombres_usados[nombre] = 0
+                    zf.writestr(nombre, img_bytes.getvalue())
+            st.session_state['_zip_cache'] = zip_buffer.getvalue()
+            st.session_state['_zip_fingerprint'] = zip_fingerprint
 
         col1, col2 = st.columns([3, 1])
         with col1:
             st.download_button(
                 "Descargar todo en ZIP",
-                data=zip_buffer.getvalue(),
+                data=st.session_state['_zip_cache'],
                 file_name="garytext_imagenes.zip",
                 mime="application/zip",
                 key="dl_zip",
                 use_container_width=True,
-                on_click=marcar_descarga_zip
+                on_click=marcar_descarga
             )
         with col2:
             if st.button("Limpiar todo", use_container_width=True, type="secondary", on_click=limpiar_todo):
@@ -495,23 +561,10 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
 
     # Banner consultoría
     st.markdown("""
-<div style="
-    margin: 1.5rem 0 0.5rem 0;
-    padding: 1rem 1.25rem;
-    background: #f0f7ff;
-    border-left: 4px solid #0056b3;
-    border-radius: 0 8px 8px 0;
-">
-    <p style="margin: 0 0 0.4rem 0; font-weight: bold; color: #1a1a1a; font-size: 1rem;">
-        ¿Tu sitio web necesita una auditoría de accesibilidad?
-    </p>
-    <p style="margin: 0 0 0.7rem 0; color: #333; font-size: 0.92rem; line-height: 1.5;">
-        El alt text es solo el comienzo. Ofrezco auditorías WCAG 2.2, testing manual con NVDA, JAWS y VoiceOver, y revisión de código.
-    </p>
-    <a href="https://digitalaccessibility.cl"
-       target="_blank"
-       rel="noopener noreferrer"
-       style="color: #0056b3; font-weight: bold; text-decoration: underline; font-size: 0.95rem;">
+<div class="banner-consultoria">
+    <p class="titulo">¿Tu sitio web necesita una auditoría de accesibilidad?</p>
+    <p>El alt text es solo el comienzo. Ofrezco auditorías WCAG 2.2, testing manual con NVDA, JAWS y VoiceOver, y revisión de código.</p>
+    <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer">
         Ver servicios en digitalaccessibility.cl
         <span class="sr-only"> (se abre en nueva pestaña)</span>
     </a>
@@ -521,20 +574,17 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
 # Footer con contadores
 st.markdown(f"""
 <div class="rasta-footer">
-    <p style="margin-bottom: 0.3rem; font-size: 0.85rem;">
+    <p class="footer-stats">
         <span aria-hidden="true">👁️</span> {contadores.get('visitas', 0):,} visitas · <span aria-hidden="true">📊</span> {contadores.get('imagenes', 0):,} imágenes analizadas
     </p>
-    <p style="margin-bottom: 0.3rem;">GaryText Pro v0.1 · Por
-        <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer"
-           style="color: #1a1a1a; text-decoration: underline;">Gary · Consultor en Accesibilidad Web
+    <p class="footer-credits">© 2026
+        <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer">GaryDev
             <span class="sr-only"> (se abre en nueva pestaña)</span>
-        </a>
+        </a> · Todos los derechos reservados.
     </p>
-    <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">
-        Si te ha parecido útil esta aplicación, no dudes en donarme un café
-    </p>
+    <p class="footer-donate">Si te ha parecido útil esta aplicación, no dudes en donarme un café</p>
     <a href="https://ko-fi.com/garydev" target="_blank" rel="noopener noreferrer">
-        <img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Donar un café en Ko-fi" width="143" height="36" style="border: 0;">
+        <img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Donar un café en Ko-fi" width="143" height="36" loading="eager" style="border:0;">
     </a>
 </div>
 """, unsafe_allow_html=True)

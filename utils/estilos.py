@@ -286,8 +286,42 @@ CSS_WCAG = """
         color: #1a1a1a !important;
     }
 
-    .rasta-footer p {
-        color: #555 !important;
+    .rasta-footer p { color: #555 !important; }
+    .rasta-footer .footer-stats { font-size: 0.85rem; margin-bottom: 0.3rem; }
+    .rasta-footer .footer-credits { margin-bottom: 0.3rem; }
+    .rasta-footer .footer-credits a { color: #1a1a1a; text-decoration: underline; }
+    .rasta-footer .footer-donate { font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+    /* Banner de consultoría */
+    .banner-consultoria {
+        margin: 1.5rem 0 0.5rem 0;
+        padding: 1rem 1.25rem;
+        background: #f0f7ff;
+        border-left: 4px solid #0056b3;
+        border-radius: 0 8px 8px 0;
+    }
+    .banner-consultoria p {
+        margin: 0 0 0.7rem 0;
+        color: #333;
+        font-size: 0.92rem;
+        line-height: 1.5;
+    }
+    .banner-consultoria p.titulo {
+        margin-bottom: 0.4rem;
+        font-weight: bold;
+        color: #1a1a1a;
+        font-size: 1rem;
+    }
+    .banner-consultoria a {
+        color: #0056b3;
+        font-weight: bold;
+        text-decoration: underline;
+        font-size: 0.95rem;
+    }
+
+    /* Categoría activa: borde izquierdo más marcado */
+    [data-testid="stExpander"] .stButton > button[kind="primary"] {
+        border-left: 4px solid #003d80 !important;
     }
 
     /* Ocultar lista de archivos subidos (el flujo es directo) */
@@ -392,11 +426,41 @@ CSS_WCAG = """
             font-size: 0.75rem !important;
         }
 
-        /* Expander más compacto */
+        /* Ko-fi imagen responsive */
+        .rasta-footer img {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Expander más compacto: flecha proporcional al texto 0.9rem */
         [data-testid="stExpander"] summary {
             font-size: 0.9rem !important;
             padding: 8px !important;
         }
+
+        [data-testid="stExpander"] details > summary::before {
+            border-left-width: 5px !important;
+            border-top-width: 4px !important;
+            border-bottom-width: 4px !important;
+        }
+
+        /* Banner consultoría compacto */
+        .banner-consultoria {
+            padding: 0.75rem 1rem !important;
+        }
+    }
+
+    /* Ko-fi: tap target mínimo 48px en móvil */
+    .rasta-footer > a {
+        display: inline-block;
+        padding: 6px 0;
+        min-height: 48px;
+        line-height: 0;
+    }
+
+    /* Prevenir scroll horizontal global */
+    body, .stApp {
+        overflow-x: hidden !important;
     }
 
 </style>
