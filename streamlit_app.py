@@ -571,13 +571,15 @@ if st.session_state.resultados and st.session_state.procesando_indice < 0:
 </div>
 """, unsafe_allow_html=True)
 
+st.divider()
+
 # Footer con contadores
 st.markdown(f"""
 <div class="rasta-footer">
     <p class="footer-stats">
         <span aria-hidden="true">👁️</span> {contadores.get('visitas', 0):,} visitas · <span aria-hidden="true">📊</span> {contadores.get('imagenes', 0):,} imágenes analizadas
     </p>
-    <p class="footer-credits">© 2026
+    <p class="footer-credits" role="text">© 2026
         <a href="https://digitalaccessibility.cl" target="_blank" rel="noopener noreferrer">GaryDev
             <span class="sr-only"> (se abre en nueva pestaña)</span>
         </a> · Todos los derechos reservados.
