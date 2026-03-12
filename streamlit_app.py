@@ -605,8 +605,8 @@ components.html(f"""
     const API_KEY = "{JSONBIN_API_KEY}";
     const STORAGE_KEY = "garytext_visitado";
 
-    if (!localStorage.getItem(STORAGE_KEY)) {{
-        localStorage.setItem(STORAGE_KEY, Date.now().toString());
+    if (!sessionStorage.getItem(STORAGE_KEY)) {{
+        sessionStorage.setItem(STORAGE_KEY, Date.now().toString());
         fetch("https://api.jsonbin.io/v3/b/" + BIN_ID + "/latest", {{
             headers: {{ "X-Master-Key": API_KEY }}
         }})
